@@ -1,0 +1,106 @@
+<header class="header">
+    <!--<div class="dropdown hamburger-icon dark">
+        <div id="nav-icon3" role="button" data-toggle="dropdown" >
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+            <div class="reports-actions-block">
+                <div class="next-report-date-block">
+                    <p class="title">Next Reporting Date:</p>
+                    <p class="date">{{next_reporting_peroid | date:'MMMM d'}}</p>
+                </div>
+                <a [routerLink]="['/dashboard-prev-report']" class="btn prev-report-btn active">Previous Reports</a>
+                <a [routerLink]="['/dashboard']" class="btn financial-review-btn">Financial Overview</a>
+                <a class="logout-btn" (click)="logOut()">Logout</a>
+            </div>
+        </div>
+    </div>-->
+    <div class="expresso-logo-block">
+        <img src="./assets/img/expresso-logo.png" class="white-logo">
+        <img src="./assets/img/expresso-logo-blue.png" class="blue-logo">
+    </div>
+    <div class="fixed-dropdown-block navbar-right dashboard-dropdown">
+        <div class="dropdown">
+            <a id="dLabel" role="button" data-toggle="dropdown" class="">
+                Contact Us <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li>
+                    <p class="title">Deal Lead</p>
+                    <p class="details">
+                        Alkarim Jivraj
+                        <br> 905-555-1212
+                        <br> alkarim@espressocapital.com
+                    </p>
+                </li>
+                <li>
+                    <p class="title">Diligence Lead</p>
+                    <p class="details">
+                        Jim Laird
+                        <br> 905-555-1212
+                        <br> jim@espressocapital.com
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+<div class="vertical-height steps-container hamburger-menu brand-bg">
+    <div class="vert-center">
+        <div class="reports-actions-block">
+            <!-- Check if Reporting is Due  -->
+            <div *ngIf="!next_reporting_due && !reporting_in_progress" class="next-report-date-block">
+                <p class="title">Next Reporting Date:</p>
+                <p class="date">{{next_reporting_peroid | date:'MMMM d, yyyy'}}</p>
+            </div>
+            <div *ngIf="next_reporting_due" class="report-due-block">
+                <p>Report due for
+                    <br> {{next_reporting_peroid | date:'MMMM d, yyyy'}}</p>
+                <a id='start_reporting' (click)="startMonthlyReporting()" class="btn start-reporting-btn">Start Reporting</a>
+            </div>
+            <div *ngIf="reporting_in_progress" class="report-due-block">
+                <p>Report in progress for
+                    <br> {{current_reporting_period | date:'MMMM d, yyyy'}}</p>
+                <a id='continue_reporting' (click)="continueMonthlyReporting()" class="btn start-reporting-btn">Continue Reporting</a>
+            </div>
+            <a [routerLink]="['/dashboard-prev-report']" class="btn prev-report-btn active">Previous Reports</a>
+            <a [routerLink]="['/dashboard']" class="btn financial-review-btn">Financial Overview</a>
+            <a class="logout-btn" (click)="logOut()">Logout</a>
+        </div>
+    </div>
+</div>
+<div class="vertical-height reports-container">
+    <div class="vert-center">
+        <p class="page-title">Previous Reports</p>
+        <div class="reports-list-block">
+            <ul class="clearfix reports-list"  *ngFor="let report of reports" >
+                <li>
+                    <a [routerLink]="['/dashboard-signoff-prev-report', report.lookup_period]" class="report-link">
+                        {{report.period_ending | date : 'MMMM'}}
+                        <span *ngIf="report.status != 'Complete'">{{report.status}}</span> <span *ngIf="report.status == 'Complete'">Completed {{report.submitted_on | date : 'MMM. d, y'}}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="animated-loader-sheen" *ngIf="showLoading">
+    <div class='loading_container'>
+        <table border="1" align="center">
+            <tr height="100%">
+                <td height="100%" width="100%" valign="middle" align="center">
+                    <!-- all the config is global in the app.module.ts imports section -->
+                    <ngx-loading [show]="showLoading"></ngx-loading>
+                </td>
+            </tr>
+            <tr height="100%">
+                <td height="100%" width="100%" valign="middle" align="center">
+                    <div class="loading_message" [innerHTML]="loadingMessage"></div> 
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

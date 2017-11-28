@@ -1,0 +1,232 @@
+<header class="header">
+    <div class="dropdown hamburger-icon dark">
+        <div id="nav-icon3" role="button" data-toggle="dropdown" >
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+            <div class="reports-actions-block">
+                <div class="next-report-date-block">
+                    <p class="title">Next Reporting Date:</p>
+                    <p class="date">{{next_reporting_peroid | date:'MMMM d'}}</p>
+                </div>
+                <a [routerLink]="['/dashboard-prev-report']" class="btn prev-report-btn active">Previous Reports</a>
+                <a [routerLink]="['/dashboard']" class="btn financial-review-btn">Financial Overview</a>
+                <a class="logout-btn" (click)="logOut()">Logout</a>
+            </div>
+        </div>
+    </div>
+    <div class="expresso-logo-block">
+        <img src="./assets/img/expresso-logo.png" class="white-logo">
+        <img src="./assets/img/expresso-logo-blue.png" class="blue-logo">
+    </div>
+    <div class="fixed-dropdown-block navbar-right dashboard-dropdown">
+        <div class="dropdown">
+            <a id="dLabel" role="button" data-toggle="dropdown" class="" >
+                Contact Us <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li>
+                    <p class="title">Deal Lead</p>
+                    <p class="details">
+                        Alkarim Jivraj
+                        <br> 905-555-1212
+                        <br> alkarim@espressocapital.com
+                    </p>
+                </li>
+                <li>
+                    <p class="title">Diligence Lead</p>
+                    <p class="details">
+                        Jim Laird
+                        <br> 905-555-1212
+                        <br> jim@espressocapital.com
+                    </p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+<div class="vertical-height steps-container hamburger-menu brand-bg">
+    <div class="vert-center">
+        <div class="reports-actions-block">
+            <!-- Check if Reporting is Due  -->
+            <div *ngIf="!next_reporting_due && !reporting_in_progress" class="next-report-date-block">
+                <p class="title">Next Reporting Date:</p>
+                <p class="date">{{next_reporting_peroid | date:'MMMM d, yyyy'}}</p>
+            </div>
+            <div *ngIf="next_reporting_due" class="report-due-block">
+                <p>Report due for
+                    <br> {{next_reporting_peroid | date:'MMMM d, yyyy'}}</p>
+                <a id='start_reporting' (click)="startMonthlyReporting()" class="btn start-reporting-btn">Start Reporting</a>
+            </div>
+            <div *ngIf="reporting_in_progress" class="report-due-block">
+                <p>Report in progress for
+                    <br> {{current_reporting_period | date:'MMMM d, yyyy'}}</p>
+                <a id='continue_reporting' (click)="continueMonthlyReporting()" class="btn start-reporting-btn">Continue Reporting</a>
+            </div>
+            <!-- removed active class because on the previous report detail view you need to get back to Previous Reports list #brad -->
+            <a [routerLink]="['/dashboard-prev-report']" class="btn prev-report-btn">Previous Reports</a>
+            <a [routerLink]="['/dashboard']" class="btn financial-review-btn">Financial Overview</a>
+            <a class="logout-btn" (click)="logOut()">Logout</a>
+        </div>
+    </div>
+</div>
+<div class="vertical-height reports-container">
+    <div *ngIf="show_in_progress_msg" class="vert-center">
+        <div class="prev-report-header">
+            <div class="input-group col-xs-12 col-md-8">
+                <p class="page-title">{{currentMonth}} Report Detail</p>
+            </div>            
+        </div>
+        <div>
+            <p class="page-title">Reporting is In Progress.</p>
+            <p>Details will be available when reporting is complete.</p>
+        </div>
+    </div>
+    
+    <div *ngIf="!show_in_progress_msg" class="vert-center">
+        <div class="prev-report-header">
+            <div class="input-group col-xs-12 col-md-8">
+                <p class="page-title">{{currentMonth}} Report Detail</p>
+            </div>
+        </div>
+    
+        <div style="padding-top: 100px;" class="statement-table-container">
+            <div class="statement-table-block balance">
+                <p class="statement-table-title">Balance Sheet</p>
+                <div class="table-responsive">
+                    <table class="table">                        
+                        <tr *ngFor="let balance of balance_sheet_ass" [ngClass]="{highlight: balance.fse_tag.is_total_row}">
+                            <td>{{balance.fse_tag.description}}</td>
+                            <!-- see comment in dashboard-compoment as to why this is USD, in short dont change it to CAD .-->
+                            <td *ngIf="balance.fse_tag.is_total_row">{{balance.value | currency:'USD':true:'1.0-0'}}</td>
+                            <td *ngIf="!balance.fse_tag.is_total_row">{{balance.value | number:'1.0-0'}}</td>
+                        </tr>
+                    </table>
+                    <table class="table">                        
+                        <tr *ngFor="let balance of balance_sheet_liab" [ngClass]="{highlight: balance.fse_tag.is_total_row}">
+                            <td>{{balance.fse_tag.description}}</td>
+                            <td *ngIf="balance.fse_tag.is_total_row">{{balance.value | currency:'USD':true:'1.0-0'}}</td>
+                            <td *ngIf="!balance.fse_tag.is_total_row">{{balance.value | number:'1.0-0'}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="statement-table-block income">
+                <p class="statement-table-title">Income Statement</p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr *ngFor="let income of income_statement" [ngClass]="{highlight: income.fse_tag.is_total_row}">
+                            <td>{{income.fse_tag.description}}</td>
+                            <td *ngIf="income.fse_tag.is_total_row">{{income.value | currency:'USD':true:'1.0-0'}}</td>
+                            <td *ngIf="!income.fse_tag.is_total_row">{{income.value | number:'1.0-0'}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>            
+        </div>
+        <div class="statement-table-container">
+            <p class="statement-table-title">Questionnaire</p>
+            <!--<form class="reporting-form" action="sign-off.html" (ngSubmit)="submitReporting()">-->
+                <div *ngFor="let question of questions">
+                    <div class="form-field" *ngIf="question.answer_data_type=='boolean'">
+                        <div class="row">
+                            <div class=" col-md-8">
+                                <div class="label-price-block">
+                                    <label>{{question.question_text}}</label>
+                                </div>
+                                <div class="radio-container">
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input disabled type="radio" id="{{question.short_tag}}_Y" class="radio" name="gaap{{question.id}}" value={{question.question_choices[0]}} [(ngModel)]="question.answer.answer">
+                                            <div class="outer-border">{{question.question_choices[0]}}</div>
+                                        </label>
+                                    </div>
+                                    <div class="radio-inline">
+                                        <label>
+                                            <input disabled type="radio" id="{{question.short_tag}}_N" class="radio" name="gaap{{question.id}}" value={{question.question_choices[1]}} [(ngModel)]="question.answer.answer">
+                                            <div class="outer-border">{{question.question_choices[1]}}</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field" *ngIf="question.answer_data_type=='integer'">
+                        <div class="row">
+                            <div class=" col-md-8">
+                                <div class="label-price-block">
+                                    <label>{{question.question_text}}</label>
+                                </div>
+                                <input readonly class="form-control time-input-block" type="number" name="value{{question.id}}" value="" [(ngModel)]="question.answer.answer">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field" *ngIf="question.answer_data_type=='varchar(12'">
+                        <div class="row">
+                            <div class=" col-md-8">
+                                <div class="label-price-block">
+                                    <label>{{question.question_text}}</label>
+                                </div>
+                                <input readonly class="form-control time-input-block" type="text" name="text{{question.id}}" value="" [(ngModel)]="question.answer.answer">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="{{question.short_tag}}_text" class="form-field" *ngIf="question.answer_data_type=='varchar(51' || question.answer_data_type=='varchar(25'">
+                        <div class="row">
+                            <div class=" col-md-8">
+                                <div class="label-price-block">
+                                    <label>{{question.question_text}}</label>
+                                </div>
+                                <textarea readonly class="form-control time-input-block" type="text" name="text{{question.id}}" value="" rows='3' [(ngModel)]="question.answer.answer"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field" *ngIf="question.answer_data_type=='date'">
+                        <div class="row">
+                            <div class=" col-md-8">
+                                <div class="label-price-block">
+                                    <label>{{question.question_text}}</label>
+                                    <input readonly placeholder="Datepicker" type="text" [(ngModel)]="question.answer.answer" class="form-control" bsDatepicker #dp="bsDatepicker" [bsConfig]="bsConfig">
+                                    <!-- <date-picker [(ngModel)]="question.answer.answer"  name="date{{question.id}}" class="angular-datepicker"></date-picker>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field" *ngIf="question.answer_data_type=='enum'">
+                        <div class="row">
+                            <div class=" col-md-8">
+                                <div class="label-price-block">
+                                    <label>{{question.question_text}}</label>
+                                </div>
+                                <select readonly class="form-control time-input-block" [(ngModel)]="question.answer.answer" name="select{{question.id}}">
+                                    <option *ngFor="let option of question.enumvalues"> {{option}}</option>
+                                </select>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!--</form>-->
+        </div>
+    </div>
+</div>
+<div class="animated-loader-sheen" *ngIf="showLoading">
+    <div class='loading_container'>
+        <table border="1" align="center">
+            <tr height="100%">
+                <td height="100%" width="100%" valign="middle" align="center">
+                    <!-- all the config is global in the app.module.ts imports section -->
+                    <ngx-loading [show]="showLoading"></ngx-loading>
+                </td>
+            </tr>
+            <tr height="100%">
+                <td height="100%" width="100%" valign="middle" align="center">
+                    <div class="loading_message" [innerHTML]="loadingMessage"></div> 
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
