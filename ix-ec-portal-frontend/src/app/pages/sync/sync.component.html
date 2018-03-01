@@ -1,0 +1,97 @@
+        <div class="vertical-container brand-bg">
+            <div class="expresso-logo-block fixed">
+                <img src="./assets/img/expresso-logo.png" class="white-logo show">
+            </div>
+            <div class="vert-center sync-center">
+                <div class="clearfix sync-block">
+                    <p class="sync-title">How would you like to share your information with us?</p>
+                    <div class="task-box-container">
+                        <div class="task-box-block">
+                            <a (click)="sync('QBO')" class="task-box-link">
+                                <div class="task-box">
+                                    <div class="task-header">
+                                        <div class="triangle-icon">
+                                            <img src="./assets/img/triangle-icon.svg">
+                                        </div>
+                                        <img src="./assets/img/qb-logo.svg" class="task-icon">
+                                        <p class="title">Sync with<span> Quickbooks Online</span></p>
+                                    </div>
+                                    <div class="task-details">
+                                        <p class="title">5 minutes</p>
+                                        <p class="description">Please have your login ready and ensure you have permission to make changes to your account.</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="task-box-block">
+                            <a (click)="sync('QBD')" class="task-box-link">
+                                <div class="task-box">
+                                    <div class="task-header">
+                                        <div class="triangle-icon">
+                                            <img src="./assets/img/triangle-icon.svg">
+                                        </div>
+                                        <img src="./assets/img/qb-logo.svg" class="task-icon">
+                                        <p class="title">Sync with<span> Quickbooks Desktop</span></p>
+                                    </div>
+                                    <div class="task-details">
+                                        <p class="title">10 minutes</p>
+                                        <p class="description">Please have your login ready and ensure you have permission to make changes to your account.</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="task-box-block">
+                            <a (click)="sync('CSV')" class="task-box-link">
+                                <div class="task-box">
+                                    <div class="task-header">
+                                        <div class="triangle-icon">
+                                            <img src="./assets/img/triangle-icon.svg">
+                                        </div>
+                                        <img src="./assets/img/csv-icon.svg" class="task-icon">
+                                        <p class="title">Upload<br><span> CSV Files</span></p>
+                                    </div>
+                                    <div class="task-details">
+                                        <p class="title">15 minutes</p>
+                                        <p class="description">Please make sure your accounting software is capable of exporting CSV files.</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="task-box-block">
+                            <a (click)="sync('MANUAL')" class="task-box-link">
+                                <div class="task-box">
+                                    <div class="task-header">
+                                        <div class="triangle-icon">
+                                            <img src="./assets/img/triangle-icon.svg">
+                                        </div>
+                                        <img src="./assets/img/form-icon.svg" class="task-icon">
+                                        <p class="title">Fill out a<br><span> Manual Form</span></p>
+                                    </div>
+                                    <div class="task-details">
+                                        <p class="title">20 minutes</p>
+                                        <p class="description">Please have your accounting data ready for manual financial data entry.</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<div class="animated-loader-sheen" *ngIf="showLoading">
+    <div class='loading_container'>
+        <table border="1" align="center">
+            <tr height="100%">
+                <td height="100%" width="100%" valign="middle" align="center">
+                    <!-- all the config is global in the app.module.ts imports section -->
+                    <ngx-loading [show]="showLoading"></ngx-loading>
+                </td>
+            </tr>
+            <tr height="100%">
+                <td height="100%" width="100%" valign="middle" align="center">
+                    <div class="loading_message" [innerHTML]="loadingMessage"></div> 
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

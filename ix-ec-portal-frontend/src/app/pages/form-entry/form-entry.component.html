@@ -1,0 +1,324 @@
+<header class="header">
+    <div class="dropdown hamburger-icon dark">
+        <div id="nav-icon3" role="button" data-toggle="dropdown">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+            <ol class="clearfix steps-list">
+                <li class="active">Fill Out Form</li>
+                <li>Reporting</li>
+                <li>Final Sign Off</li>
+            </ol>
+        </div>
+    </div>
+    <div class="expresso-logo-block">
+        <img src="./assets/img/expresso-logo.png" class="white-logo">
+        <img src="./assets/img/expresso-logo-blue.png" class="blue-logo">
+    </div>
+    <!--<div class="fixed-dropdown-block navbar-right">
+        <div class="dropdown">
+            <a id="dLabel" role="button" data-toggle="dropdown" class="" >
+                Progress <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li><a (click)="saveExit()">Save & Exit</a></li>
+
+            </ul>
+        </div>
+    </div>-->
+    <div class="fixed-dropdown-block navbar-right dashboard-dropdown">
+        <div class="dropdown">
+            <a id="dLabel" role="button" data-toggle="dropdown" class="">
+                Contact Us <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li *ngFor="let contact of espressoContacts">
+                    <p class="title">{{contact.title}}</p>
+                    <p class="details">
+                        {{contact.first_name}} {{contact.last_name}}
+                        <br> {{contact.phone}}
+                        <br> {{contact.email}}
+                    </p>
+                </li>
+                <!--<li>
+                    <p class="title">Deal Manager</p>
+                    <p class="details">
+                        Alkarim Jivraj
+                        <br> 905-555-1212
+                        <br> alkarim@espressocapital.com
+                    </p>
+                </li>
+                <li>
+                    <p class="title">Diligence Manager</p>
+                    <p class="details">
+                        Jim Laird
+                        <br> 905-555-1212
+                        <br> jim@espressocapital.com
+                    </p>
+                </li>-->
+            </ul>
+        </div>
+    </div>
+</header>
+<div class="vertical-height steps-container hamburger-menu brand-bg">
+    <div class="vert-center">
+        <div class="steps-block">
+            <ol class="clearfix steps-list">
+                <li class="active">Fill Out Form</li>
+                <li>Reporting</li>
+                <li>Final Sign Off</li>
+            </ol>
+        </div>
+        <div class="logout-btn save-and-exit">
+            <a (click)="saveExit()">Save & Exit</a>
+        </div>
+    </div>
+</div>
+<div class="clearfix page-container">
+    <h1 class="page-title">Form Entry</h1>
+    <p class="page-desc">Please answer each question below. Provide extra details when prompted. All questions are required.</p>
+    <form class="entry-form" (ngSubmit)="submitForm()" >
+        <div class="statement-table-container">
+            <div class="statement-table-block income">
+                <p class="statement-table-title">Balance Sheet as of {{date}}</p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th style="text-align: center" colspan="2">Account Name</th>
+                            <th style="text-align: center">Amount</th>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2"><span>Cash</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Cash" value="" [(ngModel)]="balancesheet.Cash" (ngModelChange)="getTotalCurrentassets()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Accounts Receivables</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Accounts Receivables" value="" [(ngModel)]="balancesheet.AccountReceivables" (ngModelChange)="getTotalCurrentassets()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Tax Credit Receivable</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="SRED/ITC Receivable" value="" [(ngModel)]="balancesheet.SREDReceivable" (ngModelChange)="getTotalCurrentassets()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Other Current Assets</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Other Current Assets" value="" [(ngModel)]="balancesheet.OtherCurrentAssets" (ngModelChange)="getTotalCurrentassets()"></td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2"><span>Total Current Assets</span></td>
+                            <td><input class="form-control time-input-block result" type="number" name="Total Current Assets" value="" [(ngModel)]="balancesheet.TotalCurrentAssets" disabled></td>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2"><span>Patents & Intangible Assets</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Patents & Intangible Assets" value="" [(ngModel)]="balancesheet.PatentsAndIntangibleAssets" (ngModelChange)="getTotalAssets()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Fixed Assets</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Fixed Assets" value="" [(ngModel)]="balancesheet.FixedAssets" (ngModelChange)="getTotalAssets()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Other Assets</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Other Assets" value="" [(ngModel)]="balancesheet.OtherAssets" (ngModelChange)="getTotalAssets()"></td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2"><span>Total Assets</span></td>
+                            <td><input class="form-control time-input-block result" type="number" name="Total Assets" value="" [(ngModel)]="balancesheet.TotalAssets" (ngModelChange)="getTotalAssets()" disabled></td>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <!--                        <tr>
+                                                    <td colspan="3"></td>
+                                                </tr>-->
+                        <tr>
+                            <td colspan="2"><span>Accounts Payable and Accrued Liabilities</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Accounts Payable and Accrued Liabilities" value="" [(ngModel)]="balancesheet.AccountsPayableAndAccruedLiabilities" (ngModelChange)="getTotalCurrentLiabilities()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Bank Debt</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Bank Debt" value="" [(ngModel)]="balancesheet.BankDebt" (ngModelChange)="getTotalCurrentLiabilities()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Other Current Liabilities</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Other Current Liabilities" value="" [(ngModel)]="balancesheet.OtherCurrentLiabilities" (ngModelChange)="getTotalCurrentLiabilities()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Deferred Revenue</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Deferred Revenue" value="" [(ngModel)]="balancesheet.DeferredRevenue" (ngModelChange)="getTotalCurrentLiabilities()" ></td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2"><span>Total Current Liabilities</span></td>
+                            <td><input class="form-control time-input-block result" type="number" name="Total Current Liabilities" value="" [(ngModel)]="balancesheet.TotalCurrentLiabilities" disabled></td>
+                        </tr> 
+                    </table>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2"><span>Espresso Debt Outstanding</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Espresso Debt Outstanding" value="" [(ngModel)]="balancesheet.EspressoDebtOutstanding" (ngModelChange)="getTotalLiabilities()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Senior Secured Debt</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Senior Secured Debt" value="" [(ngModel)]="balancesheet.SeniorSecuredDebt" (ngModelChange)="getTotalLiabilities()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Subordinated Debt</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Subordinated Debt" value="" [(ngModel)]="balancesheet.SubordinatedDebt" (ngModelChange)="getTotalLiabilities()" ></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Shareholder Loans</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Shareholder Loans" value="" [(ngModel)]="balancesheet.ShareholderLoans" (ngModelChange)="getTotalLiabilities()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Other Liabilities</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Other Liabilities" value="" [(ngModel)]="balancesheet.OtherLiabilities" (ngModelChange)="getTotalLiabilities()"></td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2"><span>Total Liabilities</span></td>
+                            <td><input class="form-control time-input-block result" type="number" name="Total Liabilities" value="" [(ngModel)]="balancesheet.TotalLiabilities" disabled></td>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2"><span>Share Capital and Contributed Capital</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Share Capital and Contributed Capital" value="" [(ngModel)]="balancesheet.ShareAndContributedCapital"  (ngModelChange)="getTotalEquity()" ></td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2"><span>Equity Portion of LT Debt</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Equity Portion of LT Debt" value="" [(ngModel)]="balancesheet.EquityPositionOfLTDebt" (ngModelChange)="getTotalEquity()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Minority Equity Position</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Minority Equity Position" value="" [(ngModel)]="balancesheet.MinorityEquityPosition" (ngModelChange)="getTotalEquity()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Retained Earnings (Loss)</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Retained Earnings (Loss)" value="" [(ngModel)]="balancesheet.RetainedEarningsLoss" (ngModelChange)="getTotalEquity()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Net Income</span></td>
+                            <td><input class="form-control time-input-block" type="number" name="Net Income" value="" [(ngModel)]="balancesheet.NetIncomeYTD" (ngModelChange)="getTotalEquity()"></td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2"><span>Total Equity</span></td>
+                            <td><input class="form-control time-input-block result" type="number" name="Total Equity" value="" [(ngModel)]="balancesheet.TotalEquity" disabled></td>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <tr class="total">
+                            <td colspan="2"><span>Total L&E</span></td>
+                            <td><input class="form-control time-input-block result" type="number" name="Total L&E" value="" [(ngModel)]="balancesheet.TotalLiabilityAndEquity" disabled></td>
+                        </tr>
+
+
+                        <!--                          <tr>
+                                                      <td colspan="2"></td>
+                                                      <td><span><input class="form-control time-input-block" type="number" name="TotalOfYear" value="" [(ngModel)]="balancesheet.TotalOfYear" ></span></td>
+                                                  </tr>-->
+                    </table>
+                </div>
+            </div>
+            
+            <div class="statement-table-block balance">
+                <p class="statement-table-title">Income Statement as of {{date}}</p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th style="text-align: center" colspan="2">Account Name</th>
+                            <th style="text-align: center">Amount</th>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Recurring Revenues</span></td>
+                            <td ><input class="form-control time-input-block" type="number" name="Recurring Revenues" value="" [(ngModel)]="incomestatement.RecurringRevenues" (ngModelChange)="getTotalRevenue()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Non-Recurring Revenues</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="Non-Recurring Revenues" value="" [(ngModel)]="incomestatement.NonRecurringRevenues" (ngModelChange)="getTotalRevenue()"></td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2"><span>Total Revenues</span></td>
+                            <!--                              <td class="empty-cell"></td>-->
+                            <td><input class="form-control time-input-block result" type="number" name="Total Revenues" value="" [(ngModel)]="incomestatement.TotalRevenue" disabled></td>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2"><span>Cost of Goods Sold</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="Cost of Goods Sold" value="" [(ngModel)]="incomestatement.CostOfGoodsSold" (ngModelChange)="getGrossProfit()"></td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2"><span>Gross Profit</span></td>
+
+                            <td ><input class="form-control time-input-block result" type="number" name="Gross Profit" value="" [(ngModel)]="incomestatement.GrossProfit" disabled></td>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2"><span>Sales and Marketing Expenses</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="Sales and Marketing Expenses" value="" [(ngModel)]="incomestatement.SalesAndMarketingExpenses" (ngModelChange)="getEbitda()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>R&D (Gross - excluding SR&ED)</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="R&D (Gross - excluding SRED)" value="" [(ngModel)]="incomestatement.RDGrossMinusExcludingSRED" (ngModelChange)="getEbitda()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>G&A</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="G&A" value="" [(ngModel)]="incomestatement.GA" (ngModelChange)="getEbitda()" ></td>
+                        </tr>
+
+                        <tr class="total">
+                            <td colspan="2"><span>EBITDA</span></td>
+
+                            <td ><input class="form-control time-input-block result" type="number" name="EBITDA" value="" [(ngModel)]="incomestatement.Ebitda" disabled></td>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <tr>
+                            <td colspan="2"><span>Depreciation & Amortization</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="Depreciation & Amortization" value="" [(ngModel)]="incomestatement.DepreciationAndAmortization" (ngModelChange)="getNetIncome()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Interest Income (Expense)</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="Interest Income (Expense)" value="" [(ngModel)]="incomestatement.InterestIncomeExpense" (ngModelChange)="getNetIncome()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>IRAP/Grants Received</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="IRAP/Grants Received" value="" [(ngModel)]="incomestatement.IRAPGrantsReceived" (ngModelChange)="getNetIncome()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>SR&ED</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="SRED" value="" [(ngModel)]="incomestatement.SREDAccrual" (ngModelChange)="getNetIncome()"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>Other Income (Expenses)</span></td>
+
+                            <td ><input class="form-control time-input-block" type="number" name="Other Income (Expenses)" value="" [(ngModel)]="incomestatement.OtherIncomeExpenses" (ngModelChange)="getNetIncome()"></td>
+                        </tr>
+                        <tr class="total">
+                            <td colspan="2"><span>Net Income</span></td>
+
+                            <td ><input class="form-control time-input-block result" type="number" name="Net Incomes" value="" [(ngModel)]="incomestatement.NetIncome" disabled></td>
+                        </tr>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="submit-btn-block">
+            <button class="btn hollow-btn submit-coa-btn"  type="submit" (ngClick)="submitForm()">Submit Entry</button>
+        </div>
+    </form>
+</div>

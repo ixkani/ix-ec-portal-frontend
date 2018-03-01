@@ -1,0 +1,237 @@
+<header class="header">
+    <div class="dropdown hamburger-icon dark">
+        <div id="nav-icon3" role="button" data-toggle="dropdown">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+            <ol class="clearfix steps-list" *ngIf="type=='quickbooks'">
+                <li>Quickbooks login</li>
+                <li class="active">Verify Chart of Accounts matching</li>
+                <li>Reporting</li>
+                <li>Final sign off</li>
+            </ol>
+            <ol class="clearfix steps-list" *ngIf="type=='upload'">
+                <li>Upload CSV files</li>
+                <li class="active">Verify Chart of Accounts matching</li>
+                <li>Reporting</li>
+                <li>Final sign off</li>
+            </ol>
+            <ol class="clearfix steps-list" *ngIf="type=='quickbook-desktop'">
+                <li>Sync app download</li>
+                <li class="active">Verify Chart of Accounts matching</li>
+                <li>Reporting</li>
+                <li>Final sign off</li>
+            </ol>
+        </div>
+    </div>
+    <div class="expresso-logo-block">
+        <img src="./assets/img/expresso-logo.png" class="white-logo">
+        <img src="./assets/img/expresso-logo-blue.png" class="blue-logo">
+    </div>
+    <!--    
+    <div class="fixed-dropdown-block navbar-right">
+        <div class="dropdown">
+            <a (click)="saveExit()">Save & Exit</a>
+            <a id="dLabel" role="button" data-toggle="dropdown" class="">
+                Progress <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li><a (click)="saveExit()">Save & Exit</a></li>
+            </ul>
+        </div>
+    </div>-->
+    <div class="fixed-dropdown-block navbar-right dashboard-dropdown">
+        <div class="dropdown">
+            <a id="dLabel" role="button" data-toggle="dropdown" class="">
+                Contact Us <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                <li *ngFor="let contact of espressoContacts;">
+                    <p class="title">{{contact.title}}</p>
+                    <p class="details">
+                        {{contact.first_name}} {{contact.last_name}}
+                        <br> {{contact.phone}}
+                        <br> {{contact.email}}
+                    </p>
+                </li>
+                <!--<li>
+                    <p class="title">Deal Manager</p>
+                    <p class="details">
+                        Alkarim Jivraj
+                        <br> 905-555-1212
+                        <br> alkarim@espressocapital.com
+                    </p>
+                </li>
+                <li>
+                    <p class="title">Diligence Manager</p>
+                    <p class="details">
+                        Jim Laird
+                        <br> 905-555-1212
+                        <br> jim@espressocapital.com
+                    </p>
+                </li>-->
+            </ul>
+        </div>
+    </div>
+</header>
+<div class="vertical-height steps-container hamburger-menu brand-bg">
+    <div class="vert-center">
+        <div class="steps-block">
+            <ol class="clearfix steps-list" *ngIf="type=='quickbooks'">
+                <li>Quickbooks login</li>
+                <li class="active">Verify Chart of Accounts matching</li>
+                <li>Reporting</li>
+                <li>Final sign off</li>
+            </ol>
+            <ol class="clearfix steps-list" *ngIf="type=='upload'">
+                <li>Upload CSV files</li>
+                <li class="active">Verify Chart of Accounts matching</li>
+                <li>Reporting</li>
+                <li>Final sign off</li>
+            </ol>
+            <ol class="clearfix steps-list" *ngIf="type=='quickbook-desktop'">
+                <li>Sync app download</li>
+                <li class="active">Verify Chart of Accounts matching</li>
+                <li>Reporting</li>
+                <li>Final sign off</li>
+            </ol>
+        </div>
+        <div class="logout-btn save-and-exit">
+            <a (click)="saveExit()">Save & Exit</a>
+        </div>
+    </div>
+</div>
+<div class="clearfix page-container">
+    <h1 class="page-title">Verify Chart of Accounts Matching</h1>
+    <div class="coa-block">
+        <div class="alert alert-success " role="alert" *ngIf="ifSuccess == true">
+            <i class="green-tick"> </i> Success Message.
+            <span class="close-alert"></span>
+        </div>
+        <div class="alert alert-danger "  *ngIf="ifError == true">
+            <i class="error-icon"> </i> Something went wrong.
+            <span class="close-alert"></span>
+        </div>
+        <form class="coa-form" #coaForm="ngForm" (ngSubmit)="submitEntry()">
+            <div *ngIf="assets.length > 0" class="coa-match-group">
+                <div class="coa-match-group-title">Assets</div>
+                <div *ngFor="let item of assets;">
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].company" name="company_{{item.model_index}}" #company_{item.model_index}="ngModel"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_id" name="cust_account_id_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_name" name="cust_account_name_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].espresso_account_name" name="espresso_account_name_{{item.model_index}}"/>
+                    
+                    <div class="label-price-block">
+                        <label>{{item.cust_account_name}}</label>                        
+                    </div>
+                    <div class="select-container">
+                        <select  [(ngModel)]="fields[item.model_index].espresso_account_id" name="espresso_account_id_{{item.model_index}}" (ngModelChange)="changeMap(item.model_index,$event,item.mapping_options)"> 
+                            <option *ngFor="let option of item.mapping_options" [ngValue]="option.tag_id" [selected]="item.espresso_account_id === option.tag_id">{{option.description}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style="clear: both"></div>        
+            <div *ngIf="liabilities.length > 0" class="coa-match-group">        
+                <div class="coa-match-group-title">Liabilities</div>
+                <div *ngFor="let item of liabilities;">
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].company" name="company_{{item.model_index}}" #company_{item.model_index}="ngModel"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_id" name="cust_account_id_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_name" name="cust_account_name_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].espresso_account_name" name="espresso_account_name_{{item.model_index}}"/>
+                    
+                    <div class="label-price-block">
+                        <label>{{item.cust_account_name}}</label>                        
+                    </div>
+                    <div class="select-container">
+                        <select  [(ngModel)]="fields[item.model_index].espresso_account_id" name="espresso_account_id_{{item.model_index}}" (ngModelChange)="changeMap(item.model_index,$event,item.mapping_options)"> 
+                            <option *ngFor="let option of item.mapping_options" [ngValue]="option.tag_id" [selected]="item.espresso_account_id === option.tag_id">{{option.description}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style="clear: both"></div>            
+            <div *ngIf="equity.length > 0" class="coa-match-group">    
+                <div class="coa-match-group-title">Equity</div>
+                <div *ngFor="let item of equity;">
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].company" name="company_{{item.model_index}}" #company_{item.model_index}="ngModel"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_id" name="cust_account_id_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_name" name="cust_account_name_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].espresso_account_name" name="espresso_account_name_{{item.model_index}}"/>
+                    
+                    <div class="label-price-block">
+                        <label>{{item.cust_account_name}}</label>                        
+                    </div>
+                    <div class="select-container">
+                        <select  [(ngModel)]="fields[item.model_index].espresso_account_id" name="espresso_account_id_{{item.model_index}}" (ngModelChange)="changeMap(item.model_index,$event,item.mapping_options)"> 
+                            <option *ngFor="let option of item.mapping_options" [ngValue]="option.tag_id" [selected]="item.espresso_account_id === option.tag_id">{{option.description}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style="clear: both"></div>
+            <div *ngIf="income.length > 0" class="coa-match-group">
+                <div class="coa-match-group-title">Income</div>
+                <div *ngFor="let item of income;">
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].company" name="company_{{item.model_index}}" #company_{item.model_index}="ngModel"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_id" name="cust_account_id_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_name" name="cust_account_name_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].espresso_account_name" name="espresso_account_name_{{item.model_index}}"/>
+                    
+                    <div class="label-price-block">
+                        <label>{{item.cust_account_name}}</label>                        
+                    </div>
+                    <div class="select-container">
+                        <select  [(ngModel)]="fields[item.model_index].espresso_account_id" name="espresso_account_id_{{item.model_index}}" (ngModelChange)="changeMap(item.model_index,$event,item.mapping_options)"> 
+                            <option *ngFor="let option of item.mapping_options" [ngValue]="option.tag_id" [selected]="item.espresso_account_id === option.tag_id">{{option.description}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style="clear: both"></div>
+            <div *ngIf="expenses.length > 0" class="coa-match-group">
+                <div class="coa-match-group-title">Expenses</div>
+                <div *ngFor="let item of expenses;">
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].company" name="company_{{item.model_index}}" #company_{item.model_index}="ngModel"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_id" name="cust_account_id_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].cust_account_name" name="cust_account_name_{{item.model_index}}"/>
+                    <input type="hidden" [(ngModel)]="fields[item.model_index].espresso_account_name" name="espresso_account_name_{{item.model_index}}"/>
+                    
+                    <div class="label-price-block">
+                        <label>{{item.cust_account_name}}</label>                        
+                    </div>
+                    <div class="select-container">
+                        <select  [(ngModel)]="fields[item.model_index].espresso_account_id" name="espresso_account_id_{{item.model_index}}" (ngModelChange)="changeMap(item.model_index,$event,item.mapping_options)"> 
+                            <option *ngFor="let option of item.mapping_options" [ngValue]="option.tag_id" [selected]="item.espresso_account_id === option.tag_id">{{option.description}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div style="clear: both"></div>            
+            <div class="submit-btn-block">
+                <button id="submit_entry" type="submit" class="btn hollow-btn submit-coa-btn" (ngClick)="submitEntry()">Submit Entry</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="animated-loader-sheen" *ngIf="showLoading">
+    <div class='loading_container'>
+        <table border="1" align="center">
+            <tr height="100%">
+                <td height="100%" width="100%" valign="middle" align="center">
+                    <!-- all the config is global in the app.module.ts imports section -->
+                    <ngx-loading [show]="showLoading"></ngx-loading>
+                </td>
+            </tr>
+            <tr height="100%">
+                <td height="100%" width="100%" valign="middle" align="center">
+                    <div class="loading_message" [innerHTML]="loadingMessage"></div> 
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
