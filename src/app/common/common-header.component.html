@@ -1,0 +1,11 @@
+<div class="expresso-logo-block fixed">
+    <img src="./assets/img/expresso-logo.png" class="white-logo show">
+</div>
+<div class="user-text" id="user_info" (click)="show()">
+    <span class="glyphicon glyphicon-user"></span> &nbsp; <span id="username" class="login-user-block">{{username}}</span>
+    <div *ngIf="user" id="cmpny_info" class="user-toggle">
+        <p class="sub-menu-items"><i class="fa fa-building"></i>&nbsp;<span id="company">{{companyName}}</span></p>
+        <p class="sub-menu-items"><i class="fa fa-key"></i> <span id="change_password" (click)="to_change_password()">Change Password</span></p>
+        <p  class="sub-menu-items" (click)="logOut()"><i class="fa fa-sign-out"></i>&nbsp;<span id="save_exit_btn">Logout</span></p>
+    </div>
+</div>
