@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  development: false,
+  development: true,
   api: {
     url: 'http://espresso-ix-backend.herokuapp.com/lend/v1',
     username: 'admin',
