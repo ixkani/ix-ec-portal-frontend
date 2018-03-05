@@ -7,7 +7,7 @@
     "npm": "5.5.1"
   },
   "scripts": {
-    "postinstall":"if \"$PRODUCTION_ENV\"; then ng build --prod --aot;else ng build --aot ; fi",
+    "postinstall": "if \"$PRODUCTION_ENV\"; then ng build --prod --aot;else ng build --aot ; fi",
     "ng": "ng",
     "start": "node Server.js",
     "build": "ng build",
