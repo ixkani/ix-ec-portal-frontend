@@ -1,0 +1,99 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+import { Injectable } from '@angular/core';
+import { IdleExpiry } from './idleexpiry';
+import { LocalStorage } from './localstorage';
+/*
+ * Represents a localStorage store of expiry values.
+ * @extends IdleExpiry
+ */
+var LocalStorageExpiry = (function (_super) {
+    __extends(LocalStorageExpiry, _super);
+    function LocalStorageExpiry(localStorage) {
+        var _this = _super.call(this) || this;
+        _this.localStorage = localStorage;
+        _this.idleName = 'main';
+        return _this;
+    }
+    /*
+     * Gets or sets the last expiry date in localStorage.
+     * If localStorage doesn't work correctly (i.e. Safari in private mode), we store the expiry value in memory.
+     * @param value - The expiry value to set; omit to only return the value.
+     * @return The current expiry value.
+     */
+    LocalStorageExpiry.prototype.last = function (value) {
+        if (value !== void 0) {
+            this.setExpiry(value);
+        }
+        return this.getExpiry();
+    };
+    LocalStorageExpiry.prototype.idling = function (value) {
+        if (value !== void 0) {
+            this.setIdling(value);
+        }
+        return this.getIdling();
+    };
+    /*
+     * Gets the idle name.
+     * @return The name of the idle.
+     */
+    LocalStorageExpiry.prototype.getIdleName = function () {
+        return this.idleName;
+    };
+    /*
+     * Sets the idle name.
+     * @param The name of the idle.
+     */
+    LocalStorageExpiry.prototype.setIdleName = function (key) {
+        if (key) {
+            this.idleName = key;
+        }
+    };
+    LocalStorageExpiry.prototype.getExpiry = function () {
+        var expiry = this.localStorage.getItem(this.idleName + '.expiry');
+        if (expiry) {
+            return new Date(parseInt(expiry, 10));
+        }
+        else {
+            return null;
+        }
+    };
+    LocalStorageExpiry.prototype.setExpiry = function (value) {
+        if (value) {
+            this.localStorage.setItem(this.idleName + '.expiry', value.getTime().toString());
+        }
+        else {
+            this.localStorage.removeItem(this.idleName + '.expiry');
+        }
+    };
+    LocalStorageExpiry.prototype.getIdling = function () {
+        var idling = this.localStorage.getItem(this.idleName + '.idling');
+        if (idling) {
+            return idling === 'true';
+        }
+        else {
+            return false;
+        }
+    };
+    LocalStorageExpiry.prototype.setIdling = function (value) {
+        if (value) {
+            this.localStorage.setItem(this.idleName + '.idling', value.toString());
+        }
+        else {
+            this.localStorage.setItem(this.idleName + '.idling', 'false');
+        }
+    };
+    return LocalStorageExpiry;
+}(IdleExpiry));
+export { LocalStorageExpiry };
+LocalStorageExpiry.decorators = [
+    { type: Injectable },
+];
+/** @nocollapse */
+LocalStorageExpiry.ctorParameters = function () { return [
+    { type: LocalStorage, },
+]; };
+//# sourceMappingURL=localstorageexpiry.js.map
