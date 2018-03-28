@@ -115,7 +115,7 @@ export class CommonService {
                 return true;
             }
         }*/
-	return true;
+	return true
     }
 
     checkAccountType(type){
