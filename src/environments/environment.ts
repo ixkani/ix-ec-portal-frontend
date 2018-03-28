@@ -7,12 +7,12 @@ export const environment = {
   production: false,
   development: true,
   api: {
-    url: 'http://ec2-52-87-156-174.compute-1.amazonaws.com:8000/lend/v1',
-    username: 'admin',
-    password: 'admin@1234',
-    client_id:'Q0W1osEOriGM0rwlt7ZBE2ArpDAuczZyDxUmQyx6neVBbU4lkI',
-    client_secret:'RPHtn6oWjCsQuwYyi5j0Jh2M8hl93LsYk934pR81',
-    token_url: 'http://ec2-52-87-156-174.compute-1.amazonaws.com:8000/o/token/',
-    notification_url: 'http://espresso-ix.herokuapp.com/'
+    url: 'https://ec-portal-backend.herokuapp.com/lend/v1',
+    username: 'extreme',
+    password: 'Espresso1',
+    client_id: 'KiQsiI3b7WKdNozrveptdx7SH4JvnYc6NgYrGBeh',
+    client_secret: 'doEcQYlNYplNWomZQLUZnLlEE2iPxNOCV2H9KaJ8Jtdun2kaE4QdEgDeuu1xvaWPm1T7JmPu9szeNrDvJHmnCuUA4IQrYv0iryNe43uv8i0wmHXEmJlDr99uyTMiB8JT',
+    token_url: 'https://ec-portal-backend.herokuapp.com/o/token/',
+    notification_url: 'https://ec-portal-frontend.herokuapp.com'
   }
 };
