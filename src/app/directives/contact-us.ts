@@ -12,7 +12,7 @@ import {AppComponent} from '../app.component';
         `
     ]
 })
-export class ContactUsComponent implements OnInit {
+export class ContactUsDirective implements OnInit {
     @Input()
     showContact: boolean;
 

@@ -534,25 +534,51 @@ export class CoaMatchComponent implements OnInit , OnDestroy{
     }
 
     saveExit(){
-        let params = {last_page: '/'+NavigateToScreen.coa_match+'/' + this.type};
-        //api call to set the metdata  last page
-        this.company_service.updateCompanyMetadata(params)
-            .then(
-                data => {
-                    this.auth_service.logout();
-                    this.router.navigate(['/']);
-                    this.appComponent.reset();
-                }
-            )
+        let coamap = [];
+        for (let i of this.fields) {
+            coamap.push({
+                "company": i.company,
+                "cust_account_id": i.cust_account_id,
+                "cust_account_name": i.cust_account_name,
+                "espresso_account_id": i.espresso_account_id,
+                "espresso_account_name": i.espresso_account_name
+            });
+        }
+        
+        this.showLoading = true;
+        this.loadingMessage['message'] = LoadingMessage.SAVE_COA_MATCHINGS;
+        this.company_service.postCoAMap(coamap)
+            .then(data => {
+                this.appComponent.addToast(AppConstants.SUCCESS_RESPONSE, '', LoadingMessage.SAVE_CHANGES_SUCCESS);
+                
+                let params = {last_page: '/'+NavigateToScreen.coa_match+'/' + this.type};
+                this.company_service.updateCompanyMetadata(params)
+                    .then(
+                        data => {
+                            this.auth_service.logout();
+                            this.router.navigate(['/']);
+                            this.appComponent.reset();
+                        }
+                    )
+                    .catch((error) => {
+                        let errBody = JSON.parse(error._body);
+                        if (this.common.sessionCheck(errBody.code)) {
+                            this.appComponent.session_warning();
+                            this.showLoading = false;
+                            return errBody.message;
+                        }
+
+                    });
+            })
             .catch((error) => {
                 let errBody = JSON.parse(error._body);
                 if (this.common.sessionCheck(errBody.code)) {
                     this.appComponent.session_warning();
-                    this.showLoading = false;
-                    return errBody.message;
+                    this.loadingMessage['message'] = LoadingMessage.SAVE_COA_MATCHINGS;
+                    this.loadingMessage['error'] = this.common.getErrorMessage(errBody.code);
                 }
 
-            });
+            });            
     }
 
     search() {

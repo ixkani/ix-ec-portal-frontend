@@ -88,6 +88,12 @@ export class CommonService {
     getAccountingType(){
       return localStorage.getItem('accounting_type');
     }
+
+    getSyncMethod(){
+        let user = JSON.parse(localStorage.getItem('user'));
+        return user.is_password_reset;
+    }
+
     getSessionTiming(){
         this.session_timing = localStorage.getItem('session_timing');
         return this.session_timing * 60;

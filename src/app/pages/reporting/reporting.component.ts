@@ -376,17 +376,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
           element.focus();
           return false;
         }
-
-        /*if (this.questions[prev].answer_data_type !== 'boolean' && (this.questions[i].answer.answer != null || this.questions[i].answer.answer != "")) {
-
-          this.appComponent.addToast('error', 'Error', "Answer required: " + this.questions[i].question_text);
-          document.getElementById(this.questions[i].id).focus();
-          console.log("ddddddddddddddddddd answer_"+this.questions[i].id);
-          var element = document.getElementById("answer_"+this.questions[i].id);
-          element.classList.add("required-field");
-          element.focus();
-          return false;
-        }*/
       }
 
       if (this.questions[i].answer_data_type == 'date') {

@@ -45,7 +45,12 @@ export class LoginComponent implements OnInit {
         sessionStorage.clear();
         // flushing local storage on login because some data appears to be carrying forward. need to figure out why. #todo #brad
         if (this.authService.isLoggedIn()) {
-            this.router.navigate([NavigateToScreen.intro]);
+            let user = JSON.parse(localStorage.getItem('user'));
+            if (user.enforce_tfa_enabled || user.is_tfa_enabled) {
+              this.router.navigate([NavigateToScreen.account_security]);
+            } else {
+              this.router.navigate([NavigateToScreen.intro]);
+            }
         }
 
         this.loadingMessage = {
@@ -163,23 +168,32 @@ export class LoginComponent implements OnInit {
                                 }
                                 else {
                                     var path = [data.company.metadata.last_page];
-
                                     // this.showLoading = false;
                                     this._pushNotifications.requestPermission();
                                     if(this.is_password_reset){
                                         this.router.navigate([NavigateToScreen.change_password]);
                                     }else {
+                                      let user = JSON.parse(localStorage.getItem('user'));
+                                      if (user.enforce_tfa_enabled || user.is_tfa_enabled) {
+                                        this.router.navigate([NavigateToScreen.account_security]);
+                                      } else {
                                         this.router.navigate(path);
+                                      }
                                     }
                                 }
-
                             }else{
                                 // this.showLoading = false;
                                 this._pushNotifications.requestPermission();
                                 if(this.is_password_reset){
                                     this.router.navigate([NavigateToScreen.change_password]);
                                 }else {
+                                  let user = JSON.parse(localStorage.getItem('user'));
+                                  if (user.enforce_tfa_enabled || user.is_tfa_enabled) {
+                                    this.router.navigate([NavigateToScreen.account_security]);
+                                  } else {
                                     this.router.navigate([NavigateToScreen.dashboard]);
+                                  }
+
                                 }
                             }
                         }
@@ -211,7 +225,12 @@ export class LoginComponent implements OnInit {
                     if(this.is_password_reset){
                         this.router.navigate([NavigateToScreen.change_password]);
                     }else{
-                        this.router.navigate([NavigateToScreen.intro]);
+                        let user = JSON.parse(localStorage.getItem('user'));
+                        if (user.enforce_tfa_enabled || user.is_tfa_enabled) {
+                          this.router.navigate([NavigateToScreen.account_security]);
+                        } else {
+                          this.router.navigate([NavigateToScreen.intro]);
+                        }
                     }
             }
             )

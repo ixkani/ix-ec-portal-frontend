@@ -83,7 +83,7 @@
         <div class="tab-content dashboard-tab-content">
             <div role="tabpanel" class="tab-pane active" id="balance-sheet">
                 <div class="statement-table-block income">
-                    <p class="statement-table-title" id="balance_date">{{date}}</p>
+                    <p class="statement-table-title" id="balance_date">{{date | date:'MMM y'}}</p>
                     <div class="table-responsive">
                         <table class="table" id="asset_table">
                             <tr *ngFor="let balance of balance_sheet_ass;let i = index" [ngClass]="{highlight: balance.fse_tag.is_total_row}">
@@ -109,7 +109,7 @@
             </div>
             <div role="tabpanel" class="tab-pane" id="income-statement">
                 <div class="statement-table-block income">
-                    <p class="statement-table-title" id="income_date">{{date}}</p>
+                    <p class="statement-table-title" id="income_date">{{date | date:'MMM y'}}</p>
                     <div class="table-responsive">
                         <table class="table" id="income_table">
                             <tr *ngFor="let income of income_statement;let i = index" [ngClass]="{highlight: income.fse_tag.is_total_row}">

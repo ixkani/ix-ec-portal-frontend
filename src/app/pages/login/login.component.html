@@ -6,7 +6,7 @@
         <p class="login-title" id="login_title">Espresso Insights</p>
         <div class="login-block" id="login_block">
             <div class="error" id="login_error" *ngIf="message != ''">{{message}}</div>
-            <form id="login_form" type="post" name="" class="login-form" #loginForm="ngForm" autocomplete="nope" (ngSubmit)="login()">
+            <form id="login_form" type="post" name="" class="login-form" #loginForm="ngForm" autocomplete="off" (ngSubmit)="login()">
                 <input id="name_field" type="text" name="username" class="input-control"  placeholder="Username" [(ngModel)]="user.username" required #username="ngModel">
                 <input id="password" type="password" name="password" class="input-control"  placeholder="Password" [(ngModel)]="user.password" required #password="ngModel">
                 <button id='login_btn' type="submit" class="btn login-btn" [disabled]="!loginForm.form.valid" >Login</button>

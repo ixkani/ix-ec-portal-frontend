@@ -6,6 +6,7 @@ import {CompanyService} from './../../services';
 import {CommonService} from "../../services";
 import { ReportingService } from './../../services';
 import {environment} from './../../../environments/environment';
+import { NumberFormatPipe } from "../../pipes/numbers.pipe";
 import * as moment from 'moment';
 import { CurrencyPipe } from '@angular/common';
 import { DecimalPipe } from '@angular/common';
@@ -14,16 +15,17 @@ import {AppConstants, ErrorCodes, ErrorMessage, LoadingMessage, NavigateToScreen
 import {ScrollEvent} from "ngx-scroll-event";
 import {BsDatepickerConfig} from 'ngx-bootstrap/datepicker';
 import {AppComponent} from '../../app.component';
+import {Observable} from "rxjs/Rx";
 import {isNullOrUndefined} from "util";
 
 @Component({
-    selector: 'app-dashbord-signoff-previous-report',
-    templateUrl: './dashbord-signoff-previous-report.component.html',
+    selector: 'app-dashbord-signoff-previous-report-edit',
+    templateUrl: './dashbord-signoff-previous-report-edit.component.html',
     styleUrls: ['./dashbord-signoff-previous-report.component.css'],
     providers: [ CompanyService, AuthService, ReportingService, SignoffService ]
 })
 
-export class DashbordSignoffPreviousReportComponent implements OnInit {
+export class DashbordSignoffPreviousReportEditComponent implements OnInit {
     date;
     income_statement: any = [];
     showLoading: boolean = true;
@@ -31,6 +33,7 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
     balance_sheet: any[];
     balance_sheet_liab: any[]; // ...ilities temporary until phase 2 refactor. #brad #todo
     balance_sheet_ass: any[];  // ...ets :) temporary until phase 2 refactor. #brad
+    form_changed: boolean;
     currentMonth;
     dateParam;
     next_reporting_peroid;
@@ -49,6 +52,18 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
     show: boolean[] = [];
     text_short_tag: any ;
     negative_collection: any;
+
+    public setDefaultValue: string = parseFloat('0').toFixed(2);
+    public balancesheet: any = [];
+    public bscollection: any = [];
+    public bsdata:any = {};
+    public incomestatement: any = {};
+    public iscollection:any = [];
+    public isdata:any = {}
+    public session: any;
+    public class:string = "";
+    public reportview:boolean = false;
+
     constructor(private signoff_service: SignoffService,
                 private route: ActivatedRoute,
                 private reporting_service: ReportingService,
@@ -57,7 +72,8 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
                 private common: CommonService,
                 private elRef: ElementRef,
                 private _bsDatepickerConfig: BsDatepickerConfig,
-                private appComponent: AppComponent) {
+                private appComponent: AppComponent,
+                private formatter: NumberFormatPipe) {
         this.username = this.common.getUserName();
         this.companyName = this.common.getCompanyName();
         this.loadingMessage = {
@@ -65,6 +81,66 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
             'error':''
         };
         this._bsDatepickerConfig.dateInputFormat = AppConstants.DATE_FORMAT;
+
+        this.bsdata["TotalCurrentAssets"] = this.setDefaultValue;
+        this.bsdata["TotalAssets"] = this.setDefaultValue;
+        this.bsdata["TotalCurrentLiabilities"] =  this.setDefaultValue;
+        this.bsdata["TotalLiabilities"] = this.setDefaultValue;
+        this.bsdata["TotalEquity"] = this.setDefaultValue;
+        this.bsdata["TotalLiabilityAndEquity"] = this.setDefaultValue;
+        this.bsdata["Cash"] = this.setDefaultValue;
+        this.bsdata["AccountReceivables"] = this.setDefaultValue;
+        this.bsdata["SREDReceivable"] = this.setDefaultValue;
+        this.bsdata["OtherCurrentAssets"] = this.setDefaultValue;
+        this.bsdata["FixedAssets"] = this.setDefaultValue;
+        this.bsdata["PatentsAndIntangibleAssets"] = this.setDefaultValue;
+        this.bsdata["OtherAssets"] = this.setDefaultValue;
+        this.bsdata["AccountsPayableAndAccruedLiabilities"] = this.setDefaultValue;
+        this.bsdata["BankDebt"] = this.setDefaultValue;
+        this.bsdata["OtherCurrentLiabilities"] = this.setDefaultValue;
+        this.bsdata["EspressoDebtOutstanding"] = this.setDefaultValue;
+        this.bsdata["SeniorSecuredDebt"] = this.setDefaultValue;
+        this.bsdata["SubordinatedDebt"] = this.setDefaultValue;
+        this.bsdata["ShareholderLoans"] = this.setDefaultValue;
+        this.bsdata["DeferredRevenue"] = this.setDefaultValue;
+        this.bsdata["OtherLiabilities"] = this.setDefaultValue;
+        this.bsdata["ShareAndContributedCapital"] = this.setDefaultValue;
+        this.bsdata["MinorityEquityPosition"] = this.setDefaultValue;
+        this.bsdata["EquityPositionOfLTDebt"] = this.setDefaultValue;
+        this.bsdata["RetainedEarningsLoss"] = this.setDefaultValue;
+        this.bsdata["NetIncomeYTD"] = this.setDefaultValue;
+
+        this.bscollection.push({"data":this.bsdata});
+
+        this.balancesheet = this.bscollection[0];
+
+        // Income statement ladger
+        this.isdata["Ebitda"] = this.setDefaultValue;
+        this.isdata["NetIncome"] = this.setDefaultValue;
+        this.isdata["TotalRevenue"] =  this.setDefaultValue;
+        this.isdata["GrossProfit"] = this.setDefaultValue;
+        this.isdata["NonRecurringRevenues"] = this.setDefaultValue;
+        this.isdata["RecurringRevenues"] = this.setDefaultValue;
+        this.isdata["CostOfGoodsSold"] = this.setDefaultValue;
+        this.isdata["SalesAndMarketingExpenses"] = this.setDefaultValue;
+        this.isdata["RDGrossMinusExcludingSRED"] = this.setDefaultValue;
+        this.isdata["GA"] = this.setDefaultValue;
+        this.isdata["InterestIncomeExpense"] = this.setDefaultValue;
+        this.isdata["SREDAccrual"] = this.setDefaultValue;
+        this.isdata["IRAPGrantsReceived"] = this.setDefaultValue;
+        this.isdata["DepreciationAndAmortization"] = this.setDefaultValue;
+        this.isdata["OtherIncomeExpenses"] = this.setDefaultValue;
+
+        this.iscollection.push({"data":this.isdata});
+
+        this.incomestatement = this.iscollection[0];
+
+        this.session = Observable.interval(1000 * 60 * AppConstants.DATA_INTERVAL).subscribe(x => {
+            if (this.form_changed) {
+                this.submit();
+                this.form_changed = false;
+            }
+        });
 
 
         // get date param from route
@@ -80,6 +156,12 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
                     this.appComponent.session_warning();
                     this.next_reporting_peroid = data.result.monthly_reporting_next_period;
                     this.monthly_reporting_sync_method = data.result.monthly_reporting_sync_method;
+
+                    if(this.monthly_reporting_sync_method == AppConstants.MANUAL_ACCOUNT_TYPE
+                        || this.monthly_reporting_sync_method == AppConstants.CSV_ACCOUNT_TYPE){
+                        this.class = "entry-form";
+                        this.reportview = true;
+                    }
 
                     this.current_reporting_period = data.result.monthly_reporting_current_period;
 
@@ -214,13 +296,17 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
                                                         if(a.fse_tag.sort_order > b.fse_tag.sort_order)
                                                             return 1;
                                                     });
-                  this.income_statement.forEach((element) => {
-                    if (element.fse_tag.name == 'net_income') {
-                      this.negative_collection += element.fse_tag.formula.match(/[\w]+/g);
-                    }
-                  });
 
+                  for(var i = 0; i < this.income_statement.length; i++) {
+                  //this.income_statement.forEach((element) => {
+                        if (this.income_statement[i].fse_tag.name == 'net_income') {
+                        this.negative_collection += this.income_statement[i].fse_tag.formula.match(/[\w]+/g);
+                        }
 
+                        let all_sight_name = this.income_statement[i].fse_tag.all_sight_name;
+                        let value =  this.formatter.transform(this.income_statement[i].data[all_sight_name]);
+                        this.incomestatement.data[all_sight_name] = value;
+                  };
                 }
             })
             .catch((error) => {
@@ -247,23 +333,25 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
                                                     if(a.fse_tag.sort_order > b.fse_tag.sort_order)
                                                         return 1;
                                                 });
-
                     // split up the balance sheet into assets and liabilities to match the fin overview
                     var active_array = [];
                     var active_index = 0;
-                    for(var i = 0; i < this.balance_sheet.length; i++) {
-                        active_array[active_index] = this.balance_sheet[i];
+                   for(var i = 0; i < this.balance_sheet.length; i++) {
+                        let all_sight_name = this.balance_sheet[i].fse_tag.all_sight_name;
+                        let value =  this.formatter.transform(this.balance_sheet[i].data[all_sight_name]);
+                        this.balancesheet.data[all_sight_name] = value;
 
-                        if(this.balance_sheet[i].fse_tag.name == 'asset_total') {
-                            this.balance_sheet_ass = active_array;
-                            active_array = [];
-                            active_index = 0;
-                            continue;
-                        }
+                       active_array[active_index] = this.balance_sheet[i];
 
-                        active_index++;
-                    }
+                       if(this.balance_sheet[i].fse_tag.name == 'asset_total') {
+                           this.balance_sheet_ass = active_array;
+                           active_array = [];
+                           active_index = 0;
+                           continue;
+                       }
 
+                       active_index++;
+                   }
                     this.balance_sheet_liab = active_array;
                     this.showLoading = false;
                 }
@@ -289,6 +377,12 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
 
         var type = this.monthly_reporting_sync_method;*/
 
+        let sync_type = this.common.getSyncMethod();
+        if(isNullOrUndefined(sync_type)){
+            this.showLoading = false;
+            this.appComponent.addToast('error', 'Error',ErrorMessage.NO_SYNC_SETUP);
+            return;
+        }
         // Create the monthly report for the current period. This functio will not allow dupliacte montly report entries to be created.
         this.reporting_service.postMonthlyReportForCurrentPeriod(localStorage.getItem('company'), localStorage.getItem('token'))
             .then(
@@ -304,7 +398,11 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
                         // refresh localStorage version of meta and store from the result of response
                         localStorage.setItem('company_meta', JSON.stringify(meta.result));
                         var type = meta.result.monthly_reporting_sync_method;
-
+                        if(isNullOrUndefined(type)){
+                            this.showLoading = false;
+                            this.appComponent.addToast('error', 'Error',ErrorMessage.NO_SYNC_SETUP);
+                            return;
+                        }
                         // #brad: don't move forward until the monthly report has been created
                         if (this.common.checkAccountSyncType(type)) {
                             // Redirect to the quick books link
@@ -355,6 +453,11 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
                 var type = meta.result.monthly_reporting_sync_method;
                 var path = [meta.result.last_page];
                 this.common.debuglog('redirecting to path '+path);
+                if(isNullOrUndefined(type)){
+                    this.showLoading = false;
+                    this.appComponent.addToast('error', 'Error',ErrorMessage.NO_SYNC_SETUP);
+                    return;
+                }
                 // #brad: don't move forward until the monthly report has been created
                 if (this.common.checkAccountSyncType(type)) {
                     this.showLoading = false;
@@ -408,12 +511,241 @@ export class DashbordSignoffPreviousReportComponent implements OnInit {
         this.auth_servcie.logout();
         this.router.navigate(['/']);
     }
-    /**
-     * go Back to dashboard previous report
-     */
+
     goBack() {
-        //this.router.navigate([NavigateToScreen.dashboard_previous_report, this.dateParam]);
-        this.router.navigate([NavigateToScreen.dashboard_previous_report]);
+        this.router.navigate([NavigateToScreen.dashboard_signoff_prev_report, this.dateParam]);
+    }
+
+    formChanged() {
+        this.form_changed = true;
+    }
+
+    /**
+     * overall calculations performed
+     */
+    convertStrToFloat(value){
+       if(Number.isNaN(value) || value == 0){
+            value = 0;
+       }
+       return parseFloat(value);
+    }
+    getTotalCurrentassets() {
+        this.balancesheet.data['TotalCurrentAssets'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['Cash']) +
+                this.convertStrToFloat(this.balancesheet.data['AccountReceivables']) +
+                this.convertStrToFloat(this.balancesheet.data['SREDReceivable']) +
+                this.convertStrToFloat(this.balancesheet.data['OtherCurrentAssets']))).toFixed(2);
+
+        this.balancesheet.data['TotalAssets'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['TotalCurrentAssets']) +
+                this.convertStrToFloat(this.balancesheet.data['PatentsAndIntangibleAssets']) +
+                this.convertStrToFloat(this.balancesheet.data['FixedAssets']) +
+                this.convertStrToFloat(this.balancesheet.data['OtherAssets']))).toFixed(2);
+    }
+
+    getTotalAssets() {
+        this.balancesheet.data['TotalAssets'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['TotalCurrentAssets']) +
+                this.convertStrToFloat(this.balancesheet.data['PatentsAndIntangibleAssets']) +
+                this.convertStrToFloat(this.balancesheet.data['FixedAssets']) +
+                this.convertStrToFloat(this.balancesheet.data['OtherAssets']))).toFixed(2);
+    }
+
+    getTotalCurrentLiabilities() {
+        this.balancesheet.data['TotalCurrentLiabilities'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['AccountsPayableAndAccruedLiabilities']) +
+                this.convertStrToFloat(this.balancesheet.data['BankDebt']) +
+                this.convertStrToFloat(this.balancesheet.data['OtherCurrentLiabilities']) +
+                this.convertStrToFloat(this.balancesheet.data['DeferredRevenue']))).toFixed(2);
+
+        this.balancesheet.data['TotalLiabilities'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['TotalCurrentLiabilities']) +
+                this.convertStrToFloat(this.balancesheet.data['EspressoDebtOutstanding']) +
+                this.convertStrToFloat(this.balancesheet.data['SeniorSecuredDebt']) +
+                this.convertStrToFloat(this.balancesheet.data['SubordinatedDebt']) +
+                this.convertStrToFloat(this.balancesheet.data['ShareholderLoans']) +
+                this.convertStrToFloat(this.balancesheet.data['OtherLiabilities']))).toFixed(2);
+
+        this.balancesheet.data['TotalLiabilityAndEquity'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['TotalEquity']) +
+                this.convertStrToFloat(this.balancesheet.data['TotalLiabilities']))).toFixed(2);
+    }
+
+    getTotalLiabilities() {
+        this.balancesheet.data['TotalLiabilities'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['TotalCurrentLiabilities']) +
+                this.convertStrToFloat(this.balancesheet.data['EspressoDebtOutstanding']) +
+                this.convertStrToFloat(this.balancesheet.data['SeniorSecuredDebt']) +
+                this.convertStrToFloat(this.balancesheet.data['SubordinatedDebt']) +
+                this.convertStrToFloat(this.balancesheet.data['ShareholderLoans']) +
+                this.convertStrToFloat(this.balancesheet.data['OtherLiabilities']))).toFixed(2);
+
+        this.balancesheet.data['TotalLiabilityAndEquity'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['TotalEquity']) +
+                this.convertStrToFloat(this.balancesheet.data['TotalLiabilities']))).toFixed(2);
+    }
+
+    getTotalEquity() {
+        this.balancesheet.data['TotalEquity'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['ShareAndContributedCapital']) +
+                this.convertStrToFloat(this.balancesheet.data['MinorityEquityPosition']) +
+                this.convertStrToFloat(this.balancesheet.data['EquityPositionOfLTDebt']) +
+                this.convertStrToFloat(this.balancesheet.data['RetainedEarningsLoss']) +
+                this.convertStrToFloat(this.balancesheet.data['NetIncomeYTD']))).toFixed(2);
+
+        this.balancesheet.data['TotalLiabilityAndEquity'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.data['TotalEquity']) +
+                this.convertStrToFloat(this.balancesheet.data['TotalLiabilities']))).toFixed(2);
+    }
+
+    getTotalRevenue() {
+        this.incomestatement.data['TotalRevenue'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['NonRecurringRevenues']) +
+                this.convertStrToFloat(this.incomestatement.data['RecurringRevenues']))).toFixed(2);
+
+        this.incomestatement.data['GrossProfit'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['TotalRevenue']) -
+                this.convertStrToFloat(this.incomestatement.data['CostOfGoodsSold']))).toFixed(2);
+
+        this.incomestatement.data['Ebitda'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['GrossProfit']) -
+                (this.convertStrToFloat(this.incomestatement.data['SalesAndMarketingExpenses']) +
+                    this.convertStrToFloat(this.incomestatement.data['RDGrossMinusExcludingSRED']) +
+                    this.convertStrToFloat(this.incomestatement.data['GA'])))).toFixed(2);
+
+        this.incomestatement.data['NetIncome'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['Ebitda']) +
+                this.convertStrToFloat(this.incomestatement.data['InterestIncomeExpense']) +
+                this.convertStrToFloat(this.incomestatement.data['SREDAccrual']) +
+                this.convertStrToFloat(this.incomestatement.data['IRAPGrantsReceived']) +
+                this.convertStrToFloat(this.incomestatement.data['DepreciationAndAmortization']) +
+                this.convertStrToFloat(this.incomestatement.data['OtherIncomeExpenses']))).toFixed(2);
+    }
+
+    getGrossProfit() {
+        this.incomestatement.data['GrossProfit'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['TotalRevenue']) -
+                this.convertStrToFloat(this.incomestatement.data['CostOfGoodsSold']))).toFixed(2);
+
+        this.incomestatement.data['Ebitda'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['GrossProfit']) -
+                (this.convertStrToFloat(this.incomestatement.data['SalesAndMarketingExpenses']) +
+                    this.convertStrToFloat(this.incomestatement.data['RDGrossMinusExcludingSRED']) +
+                    this.convertStrToFloat(this.incomestatement.data['GA'])))).toFixed(2);
+
+        this.incomestatement.data['NetIncome'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['Ebitda']) +
+                this.convertStrToFloat(this.incomestatement.data['InterestIncomeExpense']) +
+                this.convertStrToFloat(this.incomestatement.data['SREDAccrual']) +
+                this.convertStrToFloat(this.incomestatement.data['IRAPGrantsReceived']) +
+                this.convertStrToFloat(this.incomestatement.data['DepreciationAndAmortization']) +
+                this.convertStrToFloat(this.incomestatement.data['OtherIncomeExpenses']))).toFixed(2);
+    }
+
+    getEbitda() {
+        this.incomestatement.data['Ebitda'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['GrossProfit']) -
+                (this.convertStrToFloat(this.incomestatement.data['SalesAndMarketingExpenses']) +
+                    this.convertStrToFloat(this.incomestatement.data['RDGrossMinusExcludingSRED']) +
+                    this.convertStrToFloat(this.incomestatement.data['GA'])))).toFixed(2);
+
+        this.incomestatement.data['NetIncome'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['Ebitda']) +
+                this.convertStrToFloat(this.incomestatement.data['InterestIncomeExpense']) +
+                this.convertStrToFloat(this.incomestatement.data['SREDAccrual']) +
+                this.convertStrToFloat(this.incomestatement.data['IRAPGrantsReceived']) +
+                this.convertStrToFloat(this.incomestatement.data['DepreciationAndAmortization']) +
+                this.convertStrToFloat(this.incomestatement.data['OtherIncomeExpenses']))).toFixed(2);
+    }
+
+    getNetIncome() {
+        this.incomestatement.data['NetIncome'] =
+            this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.data['Ebitda']) +
+                this.convertStrToFloat(this.incomestatement.data['InterestIncomeExpense']) +
+                this.convertStrToFloat(this.incomestatement.data['SREDAccrual']) +
+                this.convertStrToFloat(this.incomestatement.data['IRAPGrantsReceived']) +
+                this.convertStrToFloat(this.incomestatement.data['DepreciationAndAmortization']) +
+                this.convertStrToFloat(this.incomestatement.data['OtherIncomeExpenses']))).toFixed(2);
+    }
+
+    /**
+     * submit form entry IncomeStatement and BalanceSheet details
+     */
+    submitForm() {
+      this.getTotalAssets();
+      this.getTotalEquity();
+      if (this.balancesheet.data['TotalAssets'] !== this.balancesheet.data['TotalLiabilityAndEquity']) {
+        this.appComponent.addToast('error', 'Error', ErrorMessage.DEBIT_CREDIT_UNEQUAL);
+        return false;
+      }
+      this.showLoading = true;
+      var balancesheet = {
+        "BalanceSheet": [this.balancesheet]
+      }
+
+      var incomestatement = {
+        "IncomeStatement": [this.incomestatement]
+      }
+
+      this.common.debuglog('A BALANCE SHEET sheet is ');
+      this.common.debuglog(JSON.stringify(balancesheet));
+
+      let data = {
+        "Balancesheet": this.balancesheet,
+        "Incomestatement": this.incomestatement,
+        "Answers": this.questions
+      };
+
+        var curr_period = moment(this.date);
+        var yearmonth = curr_period.format('YYYY-MM');
+
+      this.reporting_service.updatePreviousReports(data, this.date)
+        .then((data) => {
+          this.showLoading = false;
+          this.router.navigate([NavigateToScreen.dashboard_signoff_prev_report,yearmonth])
+          this.appComponent.addToast('success','',LoadingMessage.SAVE_CHANGES_SUCCESS);
+
+        }).catch((error) => {
+          this.showLoading = false;
+        console.log(error);
+      })
+    }
+
+
+
+    submit() {
+        /*this.signoff_service.postForSigningOff(this.signoff_by)
+            .then(data => {
+                this.appComponent.addToast('success', '', LoadingMessage.CHANGE_SAVED_TEXT);
+            })
+            .catch((error) => {
+                let errBody = JSON.parse(error._body);
+                if (this.common.sessionCheck(errBody.code)) {
+                    this.appComponent.session_warning();
+                    this.loadingMessage['message'] = LoadingMessage.SIGNING_OFF;
+                    this.loadingMessage['error'] = this.common.getErrorMessage(errBody.code);
+                }
+            });*/
+    }
+
+    show_text_area(i, val) {
+        let text = 0;
+        if (this.questions[i].answer_data_type === 'boolean') {
+            document.getElementById("answer_"+this.questions[i].id+"_yes").classList.remove("radio-required-field");
+            document.getElementById("answer_"+this.questions[i].id+"_no").classList.remove("radio-required-field");
+
+            if (this.questions[i + 1].answer_data_type === 'varchar(511)' || this.questions[i + 1].answer_data_type === 'varchar(255)') {
+                this.text_short_tag = this.questions[i + 1].short_tag;
+                this.quest = this.questions[i + 1].question_text.split(' ');
+                text = this.quest[1].substring(0, this.quest[1].length - 1);
+            }
+            let ans = val.toLowerCase();
+            if (ans === text) {
+                this.show[i + 1] = true;
+            } else {
+                this.show[i + 1] = false;
+            }
+        }
     }
 
 }

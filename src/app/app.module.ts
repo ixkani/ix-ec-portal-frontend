@@ -2,6 +2,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, Injectable} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
+import { NgxQRCodeModule } from 'ngx-qrcode3';
 import {RouterModule, Routes, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -38,7 +39,8 @@ import {SignoffComponent} from './pages/signoff/signoff.component';
 import {ThanksComponent} from './pages/thanks/thanks.component';
 import {DashboardComponent} from './pages/dashboard/dashboard.component';
 import {DashboardPreviousReportComponent} from './pages/dashboard-previous-report/dashboard-previous-report.component';
-import {DashbordSignoffPreviousReportComponent} from './pages/dashbord-signoff-previous-report/dashbord-signoff-previous-report.component';
+import { DashbordSignoffPreviousReportComponent } from './pages/dashbord-signoff-previous-report/dashbord-signoff-previous-report.component';
+import { DashbordSignoffPreviousReportEditComponent } from './pages/dashbord-signoff-previous-report/dashbord-signoff-previous-report-edit.component';
 import { LogoutComponent } from './pages/logout/logout.component';
 import { OrderbydatePipe } from './pipes/orderbydate.pipe';
 import { KeysPipe} from './pipes/keys.pipe';
@@ -57,14 +59,21 @@ import { ScrollEventModule } from 'ngx-scroll-event';
 import { CurrencyMaskModule } from 'ng2-currency-mask';
 import { CurrencyMaskConfig, CURRENCY_MASK_CONFIG } from 'ng2-currency-mask/src/currency-mask.config';
 import { LoadingModule, ANIMATION_TYPES } from 'ngx-loading';
-import {LoadingMessageComponent} from './directives/loading-message';
-import {CommonHeaderComponent} from "./directives/common-header";
-import {LoginInfoComponent} from "./directives/login-info";
+import { LoadingMessageDirective } from './directives/loading-message';
+import { CommonHeaderDirective } from "./directives/common-header";
+import { LoginInfoDirective } from "./directives/login-info";
+import { AccountSecurityComponent } from './pages/account-security/account-security.component';
+import { NumberFormatterDirective, NumbersOnlyDirective } from "./directives/number-formatter";
 import { SessionExpiredComponent } from './pages/session-expired/session-expired.component';
 import { SessionInactiveComponent } from './pages/session-inactive/session-inactive.component';
-import {RecoverPasswordComponent} from './pages/recover-password/recover-password.component';
-import {ContactUsComponent} from './directives/contact-us';
+import { RecoverPasswordComponent } from './pages/recover-password/recover-password.component';
+import { ContactUsDirective } from './directives/contact-us';
 import { ToggleSignPipe } from './pipes/custom.pipe';
+import { ScheduledMaintenanceComponent } from './pages/scheduled-maintenance/scheduled-maintenance.component';
+import {AppConstants} from "./app.constants";
+import {NumberFormatPipe} from "./pipes/numbers.pipe";
+import { PasswordStrengthBarModule } from 'ng2-password-strength-bar';
+
 export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
   align: "right",
   allowNegative: true,
@@ -78,17 +87,19 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
 @Injectable()
 export class CanActivateViaAuthGuard implements CanActivate {
 
-    constructor(private authService: AuthService, private router: Router) {}
-    canActivate(route:ActivatedRouteSnapshot) {
+  constructor(private authService: AuthService, private router: Router) {
+  }
 
-        // this block is requeired for all
-        if (this.authService.isLoggedIn()) {
-          return true;
-        }else{
-          this.router.navigate(['/login']);
-          return false;
-        }
+  canActivate(route: ActivatedRouteSnapshot) {
+
+    // this block is required for all
+    if (this.authService.isLoggedIn()) {
+      return true;
+    } else {
+      this.router.navigate(['/login']);
+      return false;
     }
+  }
 }
 
 
@@ -97,9 +108,10 @@ export class CanActivateViaAuthGuard implements CanActivate {
  * Define route with the associated components
  */
 export const appRoutes: Routes = [
-    {path: 'login', component:LoginComponent, resolve: {loginPage: AuthService}},
+    {path: 'login', component: LoginComponent, resolve: {loginPage: AuthService}},
     {path: 'change_password/:id', component: ForgotPasswordComponent},
     {path: 'change_password', component: ForgotPasswordComponent},
+    {path: 'account-security', component: AccountSecurityComponent},
     {path: 'forgotpassword', component: RecoverPasswordComponent},
     {path: 'session_expired', component: SessionExpiredComponent},
     {path: 'session_inactive', component: SessionInactiveComponent},
@@ -197,6 +209,13 @@ export const appRoutes: Routes = [
         ]
     },
     {
+        path: 'dashboard-signoff-prev-report/:date/:action',
+        component: DashbordSignoffPreviousReportEditComponent,
+        canActivate: [
+            CanActivateViaAuthGuard
+        ]
+    },
+    {
         path: 'quickbook-desktop',
         component: QuickbookDesktopComponent,
         canActivate: [
@@ -245,7 +264,7 @@ export const appRoutes: Routes = [
           CanActivateViaAuthGuard
         ]
     },
-    {path: '**', component:LoginComponent, resolve: {loginPage: AuthService}}
+    {path: '**', component: LoginComponent, resolve: {loginPage: AuthService}}
 ];
 
 
@@ -255,10 +274,13 @@ export const appRoutes: Routes = [
         LoginComponent,
         HeaderComponent,
         FooterComponent,
-        LoadingMessageComponent,
-        CommonHeaderComponent,
-        LoginInfoComponent,
-        ContactUsComponent,
+        LoadingMessageDirective,
+        CommonHeaderDirective,
+        LoginInfoDirective,
+        AccountSecurityComponent,
+        ContactUsDirective,
+        NumberFormatterDirective,
+        NumbersOnlyDirective,
         IntroComponent,
         SyncComponent,
         QuickbookComponent,
@@ -271,11 +293,13 @@ export const appRoutes: Routes = [
         DashboardComponent,
         DashboardPreviousReportComponent,
         DashbordSignoffPreviousReportComponent,
+        DashbordSignoffPreviousReportEditComponent,
         LogoutComponent,
         OrderbydatePipe,
         KeysPipe,
         GroupByPipe,
         ValueByPipe,
+        NumberFormatPipe,
         Search,
         Searchfilter,
         QuickbookDesktopComponent,
@@ -289,14 +313,17 @@ export const appRoutes: Routes = [
         SessionInactiveComponent,
         RecoverPasswordComponent,
         ToggleSignPipe,
+        ScheduledMaintenanceComponent,
     ],
     imports: [
         BrowserModule,
         FormsModule,
         HttpModule,
         BrowserAnimationsModule,
+        NgxQRCodeModule,
         CurrencyMaskModule,
         ScrollEventModule,
+        PasswordStrengthBarModule,
         FileUploadModule,
         FileDropModule,
         NgPipesModule,
@@ -306,7 +333,7 @@ export const appRoutes: Routes = [
         NgIdleModule.forRoot(),
         RouterModule.forRoot(
             appRoutes,
-            {enableTracing: true, useHash:false}
+                {enableTracing: true, useHash:false}
         ),
         BsDatepickerModule.forRoot(),
         ToastyModule.forRoot(),
@@ -326,7 +353,8 @@ export const appRoutes: Routes = [
         ReportingService,
         SignoffService,
         CanActivateViaAuthGuard,
-        { provide: CURRENCY_MASK_CONFIG, useValue: CustomCurrencyMaskConfig }
+        { provide: CURRENCY_MASK_CONFIG, useValue: CustomCurrencyMaskConfig },
+        NumberFormatPipe
     ],
     bootstrap: [AppComponent]
 })

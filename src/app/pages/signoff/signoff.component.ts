@@ -10,6 +10,8 @@ import {ScrollEvent} from "ngx-scroll-event";
 import {BsDatepickerConfig} from 'ngx-bootstrap/datepicker';
 import {AppComponent} from '../../app.component';
 import {Observable} from 'rxjs/Rx';
+import {isNullOrUndefined} from "util";
+import * as jsPDF from 'jspdf';
 
 @Component({
     selector: 'app-signoff',
@@ -98,6 +100,23 @@ export class SignoffComponent implements OnInit, OnDestroy {
         const company_meta = JSON.parse(localStorage.getItem('company_meta'));
         this.date = moment(company_meta.monthly_reporting_current_period).format('YYYY-MM-DD');
         this.today = moment().format('MMMM Do, YYYY');
+
+        this.reporting_service.getSignOffInfo(this.date)
+            .then(data => {
+
+                this.appComponent.session_warning();
+                this.signoff_by.signoff_by_name = data.result.signoff_by_name;
+                this.signoff_by.signoff_by_title = data.result.signoff_by_title;
+
+            })
+            .catch((error) => {
+                let errBody = JSON.parse(error._body);
+                if (this.common.sessionCheck(errBody.code)) {
+                    this.appComponent.session_warning();
+                    this.loadingMessage['message'] = LoadingMessage.SIGNING_OFF_INFO;
+                    this.loadingMessage['error'] = this.common.getErrorMessage(errBody.code);
+                }
+            });
 
         // get answers from last month and prepopulate for user convenience, answers typically don't change too much from month to month
         this.reporting_service.getMonthlyReportAnswersByPeriod(this.date)
@@ -188,6 +207,12 @@ export class SignoffComponent implements OnInit, OnDestroy {
                                                         if (a.fse_tag.sort_order > b.fse_tag.sort_order)
                                                             return 1;
                                                     });
+                  this.income_statement.forEach((element) => {
+                    if (element.fse_tag.name == 'net_income') {
+                      this.negative_collection += element.fse_tag.formula.match(/[\w]+/g);
+                    }
+                  });
+
                 }
             })
             .catch((error) => {
@@ -261,20 +286,23 @@ export class SignoffComponent implements OnInit, OnDestroy {
      */
 
     signOff() {
-        if (this.signoff_by.signoff_by_name == ''){
+
+        if (this.signoff_by.signoff_by_name == '' || isNullOrUndefined(this.signoff_by.signoff_by_name)){
           let element = document.getElementById('name');
           element.classList.add('required-field');
           element.focus();
           this.appComponent.addToast('error', 'Error', ErrorMessage.SIGNOFF_NAME_EMPTY_VALIDATION);
           return ;
         }
-        if (this.signoff_by.signoff_by_title == ''){
+        if (this.signoff_by.signoff_by_title == '' || isNullOrUndefined(this.signoff_by.signoff_by_title)){
           let element = document.getElementById('position');
           element.classList.add('required-field');
           element.focus();
           this.appComponent.addToast('error', 'Error', ErrorMessage.SIGNOFF_POSITION_EMPTY_VALIDATION);
           return ;
         }
+
+
         this.showLoading = true;
         this.form_changed = false;
         this.common.debuglog('signinf off with BY data: ' + JSON.stringify(this.signoff_by));
@@ -319,6 +347,7 @@ export class SignoffComponent implements OnInit, OnDestroy {
         this.company_service.updateCompanyMetadata(params)
             .then(
                 data => {
+                    this.submit();
                     this.appComponent.reset();
                     this.auth_service.logout();
                     this.router.navigate(['/']);
@@ -356,6 +385,11 @@ export class SignoffComponent implements OnInit, OnDestroy {
                   localStorage.setItem('company_meta', JSON.stringify(meta.result));
                   var type = meta.result.monthly_reporting_sync_method;
                   var path = [meta.result.last_page];
+                  if(isNullOrUndefined(type)){
+                    this.showLoading = false;
+                    this.appComponent.addToast('error', 'Error',ErrorMessage.NO_SYNC_SETUP);
+                    return;
+                  }
                   this.common.debuglog(type);
                   this.common.debuglog(path);
                   this.common.debuglog('redirecting to path ' + path);
@@ -396,5 +430,16 @@ export class SignoffComponent implements OnInit, OnDestroy {
         this.common.sessionCheck(errBody.code);
       });
   }
+
+    downloadpdf(){
+        var doc = new jsPDF();
+        doc.text(20, 20, 'Hello world!');
+        doc.text(20, 30, 'This is client-side Javascript, pumping out a PDF.');
+        doc.addPage();
+        doc.text(20, 20, 'Do you like that?');
+
+        // Save the PDF
+        doc.save('Test.pdf');
+    };
 
 }

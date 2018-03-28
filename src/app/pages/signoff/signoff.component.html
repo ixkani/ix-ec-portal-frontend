@@ -96,7 +96,7 @@
     <p class="page-desc" id="page_desc">Please look through the following and provide final signoff.</p>
     <div class="statement-table-container">
         <div class="statement-table-block balance">
-            <p class="statement-table-title" id="bal_title">Balance Sheet - {{date}}</p>
+            <p class="statement-table-title" id="bal_title">Balance Sheet - {{date | date:'MMM y'}}</p>
             <div class="table-responsive">
                 <!-- todo: get rid of this inline style. .table class appears to be loaded twice, but can't find second declaration -->
                 <table style="width: 0px" class="table" id="bal_table_1">
@@ -118,7 +118,7 @@
         </div>
         <div class="table_spacer"></div>
         <div class="statement-table-block income">
-            <p class="statement-table-title" id="income_date">Income Statement - {{date}}</p>
+            <p class="statement-table-title" id="income_date">Income Statement - {{date | date:'MMM y'}}</p>
             <div class="table-responsive">
                 <table style="width: 0px" class="table" id="income_table">
                     <tr *ngFor="let income of income_statement;let i = index" [ngClass]="{highlight: income.fse_tag.is_total_row}">
@@ -269,6 +269,7 @@
                     <div class="input-group col-xs-12 col-md-8">
                       <button id="back_action" type="button" class="btn hollow-btn submit-back-btn" (click)="goBack()">Go Back</button>
                         <button id="submit_coa_btn" type="submit" class="btn hollow-btn submit-coa-btn" (ngClick)="signOff()">Sign Off</button>
+                        <button id="download_pdf_btn" type="button" class="btn hollow-btn submit-coa-btn" (click)="downloadpdf()">Download PDF</button>
                     </div>
                 </div>
             </form>

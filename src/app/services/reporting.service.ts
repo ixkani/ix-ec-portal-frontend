@@ -22,14 +22,24 @@ export class ReportingService {
     //constructor(private http: Http, private router: Router) {
         this.company_id = localStorage.getItem('company');
         this.common.debuglog('########## REPORTING service consructor found company id '+localStorage.getItem('company'));
-        
+
         this.headers.append('Content-Type', 'application/json');
         this.headers.append('Authorization', 'Bearer ' + localStorage.getItem('token'));
 
         this.company_meta = JSON.parse(localStorage.getItem('company_meta'));
     }
 
-
+    /**
+     * Get's a report signoff information
+     */
+    getSignOffInfo(period) {
+        var curr_period = moment(period);
+        var yearmonth = curr_period.format('YYYY-MM');
+        return this.http.get(environment.api.url + '/company/' + this.company_id + '/monthlyreport/' + yearmonth + '/', {headers: this.headers})
+            .toPromise()
+            .then(this.common.extractData)
+            .catch(this.common.handleError);
+    }
 
     /**
     * Get's a blank questionaire (no answers)
@@ -116,6 +126,16 @@ export class ReportingService {
             .then(this.common.extractData)
             .catch(this.common.handleError);
     }
+
+  updatePreviousReports(data, date) {
+    var curr_period = moment(date);
+    var yearmonth = curr_period.format('YYYY-MM');
+
+    return this.http.put(environment.api.url + '/company/' + this.company_id + '/monthlyreport/' + yearmonth + '/edit/', JSON.stringify(data), {headers: this.headers})
+      .toPromise()
+      .then(this.common.extractData)
+      .catch(this.common.handleError);
+  }
 
     errorHandler(error: Response) {
         if (error.status === 400) {

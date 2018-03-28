@@ -8,9 +8,10 @@ import {CommonService} from "../../services";
 import { CurrencyPipe } from '@angular/common';
 import { DecimalPipe } from '@angular/common';
 import * as moment from 'moment';
-import {AppConstants, ErrorCodes, LoadingMessage, NavigateToScreen} from '../../app.constants';
+import {AppConstants, ErrorCodes, ErrorMessage, LoadingMessage, NavigateToScreen} from '../../app.constants';
 import {ScrollEvent} from "ngx-scroll-event";
 import {AppComponent} from '../../app.component';
+import {isNull, isNullOrUndefined} from "util";
 
 /**
  * pipe for searching value by name and date for balancesheet and incomestatement
@@ -116,6 +117,7 @@ export class DashboardComponent implements OnInit {
                                 if(data.status == AppConstants.SUCCESS_RESPONSE) {
                                     if(data.message){
                                         this.showLoading = false;
+                                        data.result = [];
                                     }
                                     this.appComponent.session_warning();
                                     var feild = 'period_ending';
@@ -125,12 +127,12 @@ export class DashboardComponent implements OnInit {
                                         return right - left;
                                     });
                                     this.income_statement = data.result;
-
                                     this.company_service.getBalanceStatementOfLastMonths()
                                         .then(data => {
                                             if(data.status == AppConstants.SUCCESS_RESPONSE) {
                                                 if(data.message){
                                                     this.showLoading = false;
+                                                    data.result = [];
                                                 }
                                                 this.appComponent.session_warning();
                                                 var feild = 'period_ending';

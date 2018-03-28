@@ -31,16 +31,16 @@
             <!-- Check if Reporting is Due  -->
             <div *ngIf="!next_reporting_due && !reporting_in_progress" class="next-report-date-block">
                 <p class="title" id="next_report_text">Next Reporting Date:</p>
-                <p class="date" id="next_report">{{next_reporting_peroid | date:'MMMM d, yyyy'}}</p>
+                <p class="date" id="next_report">{{next_reporting_peroid | date:'MMMM, y'}}</p>
             </div>
             <div *ngIf="next_reporting_due" class="report-due-block">
                 <p id="report_due">Report due for
-                    <br> {{next_reporting_peroid | date:'MMMM d, yyyy'}}</p>
+                    <br> {{next_reporting_peroid | date:'MMMM, y'}}</p>
                 <a id='start_reporting' (click)="startMonthlyReporting()" class="btn start-reporting-btn">Start Reporting</a>
             </div>
             <div *ngIf="reporting_in_progress" class="report-due-block">
                 <p id="cur_report">Report in progress for
-                    <br> {{current_reporting_period | date:'MMMM d, yyyy'}}</p>
+                    <br> {{current_reporting_period | date:'MMMM, y'}}</p>
                 <a id='continue_reporting' (click)="continueMonthlyReporting()" class="btn start-reporting-btn">Continue Reporting</a>
             </div>
             <a id="previous_btn" [routerLink]="['/dashboard-prev-report']" class="btn prev-report-btn active">Previous Reports</a>
@@ -59,7 +59,7 @@
             <ul class="clearfix reports-list" id="report_list" *ngFor="let report of reports;let i= index">
                 <li>
                     <a [attr.id]="'report_link'+i" [routerLink]="['/dashboard-signoff-prev-report', report.lookup_period]" class="report-link">
-                        {{report.period_ending | date : 'MMMM'}}
+                        {{report.period_ending | date : 'MMMM, y'}}
                         <span *ngIf="report.status != 'Complete'">{{report.status}}</span> <span *ngIf="report.status == 'Complete'">Submitted {{report.submitted_on | date : 'MMM. d, y'}}</span>
                     </a>
                 </li>

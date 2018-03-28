@@ -53,7 +53,8 @@
         </div>
     </div>
 </div>
-<div class="vertical-height reports-container">
+<div class="clearfix page-container">
+    <div class="statement-table-container">
     <div *ngIf="show_in_progress_msg" class="vert-center">
         <div class="prev-report-header">
             <div class="input-group col-xs-12 col-md-8">
@@ -191,7 +192,15 @@
                     </div>
                 </div>
             </div>
+            <div class="submit-btn-block">
+                <div class="input-group col-xs-12 col-md-8">
+                    <button id="back_action" type="button" class="btn hollow-btn submit-back-btn" (click)="goBack()">Go Back</button>
+                    <button [routerLink]="['/dashboard-signoff-prev-report', dateParam, 'edit']" id="submit_coa_btn" type="submit" class="btn hollow-btn submit-coa-btn">Edit Report</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+</div>
+
 <loading-message [showLoading]="showLoading" [loadingMessage]="loadingMessage"></loading-message>

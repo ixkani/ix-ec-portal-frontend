@@ -25,27 +25,28 @@
     <contact-us [showContact]="showContact"></contact-us>
 </header>
 <div class="vertical-height steps-container hamburger-menu brand-bg" detect-scroll (onScroll)="handleScroll($event)">
-    <div class="vert-center">
+    <div class="vert-center" >
         <div class="reports-actions-block">
 
             <!-- Check if Reporting is Due  -->
             <div *ngIf="!next_reporting_due && !reporting_in_progress" class="next-report-date-block">
                 <p class="title" id="title">Next Reporting Date:</p>
-                <p class="date" id="date">{{next_reporting_peroid | date:'MMMM d, yyyy'}}</p>
+                <p class="date" id="date">{{next_reporting_peroid | date:'MMMM, y'}}</p>
             </div>
             <div *ngIf="next_reporting_due" class="report-due-block">
                 <p id="report_due">Report due for
-                    <br> {{next_reporting_peroid | date:'MMMM d, yyyy'}}</p>
+                    <br> {{next_reporting_peroid | date:'MMMM, y'}}</p>
                 <a id='start_reporting' (click)="startMonthlyReporting()" class="btn start-reporting-btn">Start Reporting</a>
             </div>
             <div *ngIf="reporting_in_progress" class="report-due-block">
                 <p id="cur_report">Report in progress for
-                    <br> {{current_reporting_period | date:'MMMM d, yyyy'}}</p>
+                    <br> {{current_reporting_period | date:'MMMM, y'}}</p>
                 <a id='continue_reporting' (click)="continueMonthlyReporting()" class="btn start-reporting-btn">Continue Reporting</a>
             </div>
             <a id='dashboard_prev_report_1' [routerLink]="['/dashboard-prev-report']" class="btn prev-report-btn">Previous Reports</a>
             <a id='dashboard_financial_overview_1' [routerLink]="['/dashboard']" class="btn financial-review-btn active">Financial Overview</a>
         </div>
+      <br><br>
         <login-info></login-info>
         <div class="logout-btn save-and-exit">
             <a id='save_exit_btn' (click)="logOut()">Logout</a>

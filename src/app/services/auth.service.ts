@@ -28,7 +28,6 @@ export class AuthService implements Resolve<any> {
     }
 
   resolve() {
-      console.log("XXXXXXXXXXXXXXXXXXXXXXXXX",environment.development);
       if (!environment.development && (location.protocol !== 'https:')) {
         location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
         return false;
@@ -48,6 +47,52 @@ export class AuthService implements Resolve<any> {
             .then(this.common.extractData)
             .catch(this.common.handleError);
     }
+
+    /**
+     * get Two Factor Auth Code  By user
+     * @param keyword
+     */
+    getTwoFactorCode() {
+        let headers = new Headers();
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('token'));
+        headers.append('Content-Type', 'application/json');
+        return this.http.get(environment.api.url + '/twofactor/auth/', {headers: headers})
+            .toPromise()
+            .then(this.common.extractData)
+            .catch(this.common.handleError);
+    }
+
+    /**
+     * Check Two Factor Auth Code  By user
+     * @param keyword
+     */
+    checckTwoFactorCode(code) {
+        let headers = new Headers();
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('token'));
+        return this.http.post(environment.api.url + '/twofactor/auth/', code, {headers: headers})
+            .toPromise()
+            .then(this.common.extractData)
+            .catch(this.common.handleError);
+    }
+
+  updateTwoFactorLogin(data) {
+    let headers = new Headers();
+    headers.append('Authorization', 'Bearer ' + localStorage.getItem('token'));
+    return this.http.put(environment.api.url + '/twofactor/auth/', data, {headers: headers})
+      .toPromise()
+      .then(this.common.extractData)
+      .catch(this.common.handleError);
+  }
+
+  check_maintenance(): Promise<any> {
+    let headers = new Headers();
+    headers.append('Authorization', 'Bearer ' + localStorage.getItem('token'));
+    return this.http
+      .get(environment.api.url + '/scheduled_maintenance/', {headers: headers})
+      .toPromise()
+      .then(this.common.extractData)
+      .catch(this.common.handleError);
+  }
     recoverpassword(emailid: object): Promise<any> {
         let headers = new Headers();
         return this.http

@@ -19,6 +19,7 @@ export class AppConstants {
     public static CSV_ACCOUNT_TYPE = 'CSV';
     public static MANUAL_ACCOUNT_TYPE = 'MANUAL';
     public static XERO_ACCOUNT_TYPE = 'XERO';
+    public static SECURITY_ISSUER = 'Espresso%20Capital';
 
 
 
@@ -49,6 +50,7 @@ export class LoadingMessage {
     public static NOCHANAGE_IN_COA_AND_MAPPIN_IS_LOADING = 'No change in Chart of Accounts. Loading your CoA Mappings';
     public static LOADING_GENERATE_STATEMENTS = "Processing generated statements.";
     public static COA_MAPPIN_IS_LOADING = 'Loading your CoA Mappings';
+    public static PASSWORD_CHANGE_SUCCESS = 'Password changed successfully. re-login again';
 
     public static FINANCIAL_OVERVIEW = 'Loading your Financial Overview';
     public static ESPRESSO_CONTACT = "Espresso Contact"
@@ -63,6 +65,7 @@ export class LoadingMessage {
 
     public static SEND_INCOME_STATEMENT = 'Send Income Statement';
     public static SEND_BALANCE_SHEET = 'Send Balance Sheet';
+    public static TFA_AUTH_DISABLED_SUCCESS = 'Two factor Authentication disabled successfully';
 
     public static START_REPORT = 'Starting Monthly Report for ';
     public static CONTINUE_REPORT = 'Continuing Monthly Report for ';
@@ -76,10 +79,12 @@ export class LoadingMessage {
     public static GET_MONTHLY_REPORT_ANSWERS_BY_PERIOD = 'Get Monthly Report Answers By Period';
 
     public static SIGNING_OFF = 'signing off';
+    public static SIGNING_OFF_INFO = 'Get signing off';
     public static GET_LAST_MONTH_REPORT_ANSWER = ' Get Last Month Report Answer';
     public static GET_QUESTION_LIST = 'Get Question List';
     public static SUBMIT_REPORTING_ANSWER = 'Submit Reporting Answers';
     public static SAVE_CHANGES_SUCCESS = 'Your changes has been saved';
+    public static CONFIGURATION_2FA_SUCCESS = 'Two factor Authentication enabled successfully.';
 }
 
 export class NavigateToScreen{
@@ -89,6 +94,7 @@ export class NavigateToScreen{
     public static dashboard = '/dashboard';
     public static admin_company_search_component = 'AdminCompanySerachComponent';
     public static change_password = '/change_password';
+    public static account_security = '/account-security';
     public static forgotpass = '/forgotpassword';
 
     public static qbo = '/connect/?company=';
@@ -106,11 +112,14 @@ export class NavigateToScreen{
     public static admin_previous_report = 'admin-previous-report';
     public static admin_previous_report_detail = 'admin-previous-report-detail';
     public static signoff = 'signoff';
+    public static dashboard_previous_report = 'dashboard-prev-report';
+    public static dashboard_signoff_prev_report = 'dashboard-signoff-prev-report';
 }
 
 export class ErrorCodes {
     public static TOKEN_EXPIRED = 400;
     public static INVALID_CREDENTIALS = 1000;
+    public static VALIDATION_FAILED = 1001;
     public static DATA_PARSHING_ISSUE = 1004;
     public static INTERNAL_SERVER_ERROR = 1007;
     public static OBJECT_RESOURCE = 1008;
@@ -143,6 +152,7 @@ export class ErrorMessage {
     public static INVALID_SYNC_TYPE = "Invalid sync method.";
     public static MISSING_COMPANY_CONFIGURATION = 'Your accounting configuration is not valid. Please contact the admin for support.';
 
+    public static PASSWORD_POLICY_NOT_CONTAINS = 'Password must be in strong. Given password not matched for defined policy.';
     public static NUMERIC_PASSWORD = 'Your password can\'t be entirely numeric.';
     public static EMPTY_PASSWORD = 'Passwords cannot be empty';
     public static SAME_PASSWORD = 'Both the passwords must be same';
@@ -158,10 +168,11 @@ export class ErrorMessage {
     public static FISCAL_YEAR_MISSING = "Fiscal year ends not configure as proper.";
     public static XERO_CONNECTION_ERROR = "Xero connection error.";
 
-
+    public static NO_SYNC_SETUP = "Company Sync method does not setup as proper.";
+    public static NO_PREVIOUS_MONTHLY_REPORT = "There is no monthly report has been generated previously";
     public static NO_DATA_CHANGES = "No Data changed.";
     public static DATA_NOT_FOUND = "No data available";
-    public static MISSING_MONTHLY_REPORTING_PREVIOUS_PERIOD = "No Monthly report available for current period";
+    public static MISSING_MONTHLY_REPORTING_PREVIOUS_PERIOD = "No monthly report available for current period";
     public static INVALID_COA_CSV = "Selected Chart of Accounts file format is not valid";
     public static INVALID_TB_CSV = "Selected Trail balance file format is not valid.";
     public static INVALID_TB_DATE = "Current period doesn't match in Trial balance";
@@ -169,5 +180,6 @@ export class ErrorMessage {
 
     public static SIGNOFF_NAME_EMPTY_VALIDATION ="Name of person certifying statements cannot be empty\n";
     public static SIGNOFF_POSITION_EMPTY_VALIDATION ="Position of person certifying statements cannot be empty\n";
-
+    public static DEBIT_CREDIT_UNEQUAL ="Total Assets are not equal to Total L & E. Please check your numbers and try again.";
+    public static INCORRECT_TOTP = 'Code incorrect / expired';
 }

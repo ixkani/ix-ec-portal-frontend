@@ -31,6 +31,25 @@ export class ForgotPasswordComponent implements OnInit {
     error: string;
     last_page:string;
     is_password_reset_enabled:boolean = false;
+
+    public account = {
+        password: <string>null
+    };
+    public barLabel: string = "Password strength:";
+    public myColors = ['#DD2C00', '#FF6D00', '#FFD600', '#AEEA00', '#00C853'];
+
+    public width = 0;
+    private value:string;
+    public pwd_strong_message:string = "Password must be at least 8 characters";
+    private symbool:object = {'isit':'false'};
+    private nucbool:object = {'isit':'false'};
+    private nlcbool:object = {'isit':'false'};
+    private numbool:object = {'isit':'false'};
+    private lengthbool:object = {'isit':'false'};
+    private password_status:string = "";
+    public custom_css:string = 'left-block';
+
+
     constructor(private authService: AuthService,
                 private router: Router,
                 private common: CommonService,
@@ -44,20 +63,28 @@ export class ForgotPasswordComponent implements OnInit {
 
   ngOnInit() {
 
+      this.lengthbool['isit'] = false;
+      this.symbool['isit'] = false;
+      this.nucbool['isit'] = false;
+      this.numbool['isit'] = false;
+      this.nlcbool['isit'] = false;
+
       this.id = (this.router.url).split('/');
       this.identifier = {
           hashed_id: this.id[2]
       };
-      this.is_password_reset_enabled = this.common.checkIsPasswordRestEnabled();
-
       if(!isNullOrUndefined(this.identifier.hashed_id)) {
           this.showLoading = true;
           this.validatelink();
+          this.is_password_reset_enabled = true;
       }else{
+          this.is_password_reset_enabled = this.common.checkIsPasswordRestEnabled();
           this.initial = true;
+          this.custom_css = 'left-block';
           this.show = false;
       }
   }
+
     validatelink()  {
 
         this.authService.validatelink(this.identifier.hashed_id)
@@ -73,6 +100,7 @@ export class ForgotPasswordComponent implements OnInit {
                 let errBody = JSON.parse(error._body);
                 if (errBody.code === ErrorCodes.TOKEN_EXPIRED){
                     this.initial = false;
+                    this.custom_css = '';
                     this.show = true;
                     this.showLoading = false;
                 } else {
@@ -82,9 +110,11 @@ export class ForgotPasswordComponent implements OnInit {
             });
     }
     changepassword_back(){
+      this.showLoading = true;
         this.company.getCompanyMetadata()
             .then(
                 meta => {
+                  this.showLoading = false;
                     this.last_page = meta.result.last_page;
                     this.router.navigate([this.last_page]);
                 })
@@ -94,15 +124,16 @@ export class ForgotPasswordComponent implements OnInit {
                 this.showLoading = false;
             });
     }
+    /*
+    Change Password Save
+     */
     changepassword() {
-
-
-        //localStorage.clear();
-        //this.appComponent.remove();
         this.showLoading = true;
         this.passcode.password = this.passcode.password.trim();
         this.passcode.reenter_password = this.passcode.reenter_password.trim();
-        if (this.passcode.password.length >= 8) {
+
+        if(this.lengthbool['isit'] && this.symbool['isit'] && this.nucbool['isit'] && this.nlcbool['isit']
+                && this.numbool['isit']) {
             if (this.passcode.password === this.passcode.reenter_password) {
                 if (this.passcode.password) {
                     if (isNaN(Number(this.passcode.password))) {
@@ -121,7 +152,7 @@ export class ForgotPasswordComponent implements OnInit {
             }
         }else {
             this.showLoading = false;
-            this.appComponent.addToast('error', 'Error',  ErrorMessage.PASSWORD_LENGTH);
+            this.appComponent.addToast('error', 'Error',  ErrorMessage.PASSWORD_POLICY_NOT_CONTAINS);
 
         }
         if (this.change_password){
@@ -134,8 +165,11 @@ export class ForgotPasswordComponent implements OnInit {
                             if (data.status === AppConstants.SUCCESS_RESPONSE) {
                                 this.success = true;
                                 this.initial = false;
+                                this.custom_css = '';
                                 localStorage.clear();
                                 this.appComponent.remove();
+                                this.router.navigate([NavigateToScreen.login]);
+                                this.appComponent.addToast('success', '',  LoadingMessage.PASSWORD_CHANGE_SUCCESS);
                             }
                             this.showLoading = false;
                         }
@@ -155,6 +189,7 @@ export class ForgotPasswordComponent implements OnInit {
                             if (data.status === AppConstants.SUCCESS_RESPONSE) {
                                 this.success = true;
                                 this.initial = false;
+                                this.custom_css = '';
                             }
                             this.showLoading = false;
                         }
@@ -165,6 +200,59 @@ export class ForgotPasswordComponent implements OnInit {
                         this.showLoading = false;
                     });
             }
+        }
+    }
+
+    onKey(event: any) {
+        this.value = event.target.value;
+
+        // Additions :-D
+        let noc = this.value.length; // Number of Characters
+        let nuc = this.value.replace(/[^A-Z]/g, "").length; // Uppercase Letters
+        let nlc = this.value.replace(/[^a-z]/g, "").length; // Lowercase Letters
+        let num = this.value.replace(/[^0-9]/g, "").length; // Numbers
+        let symr:number;
+        let sym = this.value.match(/[ !@#$£%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g); // Symbols
+        if(!sym) { symr = 0 } else { symr = sym.length};
+
+        // Deductions :-(
+        let aucr:number; // Letters Only Resolver
+        let auc = this.value === this.value.toUpperCase();
+        if(auc == false) {aucr = noc} else {aucr = 0}; // Letters Only
+        let anvr:number; // Number Only Resolver
+        let anv = +this.value;  if(anv !== NaN || anv !== 0) {anvr = noc} else {anvr = 0}; // Numbers Only
+        let cons:number; // Repeat Characters Resolver
+        //if(this.value.match(/(.)\1\1/)) {cons = noc*noc} else {cons = 0} // Repeat Characters
+        if(this.value.match(/(.)\1\1/)) {cons = (noc*noc)%10} else {cons = 0} // Repeat Characters
+        // The MF math
+        let additions = ((noc*5)+((nuc)*10)+((nlc-nuc)*5)+(num*5)+((symr)*7));
+        let deductions = ((aucr)+(anvr)+cons);
+        let total = additions-deductions;
+ 
+        if(this.value.length > 7){
+            this.lengthbool['isit'] = true;
+        }else{
+            this.lengthbool['isit'] = false;
+        }
+        if(sym == null) {
+            this.symbool['isit'] = false;
+        } else {
+            this.symbool['isit'] = true;
+        }
+        if (nuc == 0) {
+            this.nucbool['isit'] = false;
+        } else {
+            this.nucbool['isit'] = true;
+        }
+        if (nlc == 0) {
+            this.nlcbool['isit'] = false;
+        } else {
+            this.nlcbool['isit'] = true;
+        }
+        if (num == 0) {
+            this.numbool['isit'] = false;
+        } else {
+            this.numbool['isit'] = true;
         }
     }
 }

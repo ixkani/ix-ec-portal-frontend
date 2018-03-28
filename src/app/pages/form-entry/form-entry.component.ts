@@ -4,10 +4,12 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {CompanyService, AuthService, SignoffService} from './../../services';
 import * as moment from 'moment';
 import {CommonService} from "../../services";
-import {AppConstants, ErrorCodes, LoadingMessage, NavigateToScreen} from '../../app.constants';
+import {AppConstants, ErrorCodes, ErrorMessage, LoadingMessage, NavigateToScreen} from '../../app.constants';
 import {containsElement} from "@angular/animations/browser/src/render/shared";
 import {AppComponent} from '../../app.component';
 import {Observable} from 'rxjs/Rx';
+import { DecimalPipe } from '@angular/common';
+import {isNull, isNullOrUndefined} from "util";
 
 
 @Component({
@@ -30,6 +32,7 @@ export class FormEntryComponent implements OnInit, OnDestroy {
     showLoading: boolean = true;
     showContact: boolean = true;
     account_status: any;
+    setDefaultValue: string = parseFloat('0').toFixed(2);
 
     // need to set input length limits on the form and make all fields required #todo #brad
     constructor(private company_service: CompanyService,
@@ -92,58 +95,58 @@ export class FormEntryComponent implements OnInit, OnDestroy {
         // #todo We should be able to get these objects dynamically from the server
         this.balancesheet = {
             "Period": period,
-            "TotalCurrentAssets": 0,
-            "TotalAssets": 0,
-            "TotalCurrentLiabilities": 0,
-            "TotalLiabilities": 0,
-            "TotalEquity": 0,
-            "TotalLiabilityAndEquity": 0,
-            "Cash": 0,
-            "AccountReceivables": 0,
-            "SREDReceivable": 0,
-            "OtherCurrentAssets": 0,
-            "FixedAssets": 0,
-            "PatentsAndIntangibleAssets": 0,
-            "OtherAssets": 0,
-            "AccountsPayableAndAccruedLiabilities": 0,
-            "BankDebt": 0,
-            "OtherCurrentLiabilities": 0,
-            "EspressoDebtOutstanding": 0,
-            "SeniorSecuredDebt": 0,
-            "SubordinatedDebt": 0,
-            "ShareholderLoans": 0,
-            "DeferredRevenue": 0,
-            "OtherLiabilities": 0,
-            "ShareAndContributedCapital": 0,
-            "MinorityEquityPosition": 0,
-            "EquityPositionOfLTDebt": 0,
-            "RetainedEarningsLoss": 0,
-            "NetIncomeYTD": 0,
+            "TotalCurrentAssets": this.setDefaultValue,
+            "TotalAssets": this.setDefaultValue,
+            "TotalCurrentLiabilities": this.setDefaultValue,
+            "TotalLiabilities": this.setDefaultValue,
+            "TotalEquity": this.setDefaultValue,
+            "TotalLiabilityAndEquity": this.setDefaultValue,
+            "Cash": this.setDefaultValue,
+            "AccountReceivables": this.setDefaultValue,
+            "SREDReceivable": this.setDefaultValue,
+            "OtherCurrentAssets": this.setDefaultValue,
+            "FixedAssets": this.setDefaultValue,
+            "PatentsAndIntangibleAssets": this.setDefaultValue,
+            "OtherAssets": this.setDefaultValue,
+            "AccountsPayableAndAccruedLiabilities": this.setDefaultValue,
+            "BankDebt": this.setDefaultValue,
+            "OtherCurrentLiabilities": this.setDefaultValue,
+            "EspressoDebtOutstanding": this.setDefaultValue,
+            "SeniorSecuredDebt": this.setDefaultValue,
+            "SubordinatedDebt": this.setDefaultValue,
+            "ShareholderLoans": this.setDefaultValue,
+            "DeferredRevenue": this.setDefaultValue,
+            "OtherLiabilities": this.setDefaultValue,
+            "ShareAndContributedCapital": this.setDefaultValue,
+            "MinorityEquityPosition": this.setDefaultValue,
+            "EquityPositionOfLTDebt": this.setDefaultValue,
+            "RetainedEarningsLoss": this.setDefaultValue,
+            "NetIncomeYTD": this.setDefaultValue,
             "CreatedTimestamp": new Date(),
             "LastUpdatedTimestamp": new Date(),
             "SourceName": "CustomerProfile",
             "SourceKey": "Prabhu5"
-        }
+        };
         /* //#brad: removed these because they aren't needed. delete after testing is done.
         "*/
 
         this.incomestatement = {
-            "Ebitda": 0,
-            "NetIncome": 0,
+            "Ebitda": this.setDefaultValue,
+            "NetIncome": this.setDefaultValue,
             "Period": period,
-            "TotalRevenue": 0,
-            "GrossProfit": 0,
-            "NonRecurringRevenues": 0,
-            "RecurringRevenues": 0,
-            "CostOfGoodsSold": 0,
-            "SalesAndMarketingExpenses": 0,
-            "RDGrossMinusExcludingSRED": 0,
-            "GA": 0,
-            "InterestIncomeExpense": 0,
-            "SREDAccrual": 0,
-            "IRAPGrantsReceived": 0,
-            "DepreciationAndAmortization": 0,
-            "OtherIncomeExpenses": 0,
+            "TotalRevenue": this.setDefaultValue,
+            "GrossProfit": this.setDefaultValue,
+            "NonRecurringRevenues": this.setDefaultValue,
+            "RecurringRevenues": this.setDefaultValue,
+            "CostOfGoodsSold": this.setDefaultValue,
+            "SalesAndMarketingExpenses": this.setDefaultValue,
+            "RDGrossMinusExcludingSRED": this.setDefaultValue,
+            "GA": this.setDefaultValue,
+            "InterestIncomeExpense": this.setDefaultValue,
+            "SREDAccrual": this.setDefaultValue,
+            "IRAPGrantsReceived": this.setDefaultValue,
+            "DepreciationAndAmortization": this.setDefaultValue,
+            "OtherIncomeExpenses": this.setDefaultValue,
             "CreatedTimestamp": new Date(),
             "LastUpdatedTimestamp": new Date(),
             "SourceName": "CustomerProfile",
@@ -211,6 +214,12 @@ export class FormEntryComponent implements OnInit, OnDestroy {
      * submit form entry IncomeStatement and BalanceSheet details
      */
     submitForm() {
+      this.getTotalAssets();
+      this.getTotalEquity();
+      if (this.balancesheet.TotalAssets !== this.balancesheet.TotalLiabilityAndEquity) {
+        this.appComponent.addToast('error', 'Error', ErrorMessage.DEBIT_CREDIT_UNEQUAL);
+        return;
+      }
         this.showLoading = true;
         var balancesheet = {
             "BalanceSheet": [this.balancesheet]
@@ -264,48 +273,142 @@ export class FormEntryComponent implements OnInit, OnDestroy {
         return parseFloat(value);
     }
     getTotalCurrentassets() {
-        this.balancesheet.TotalCurrentAssets = this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.Cash) + this.convertStrToFloat(this.balancesheet.AccountReceivables) + this.convertStrToFloat(this.balancesheet.SREDReceivable) + this.convertStrToFloat(this.balancesheet.OtherCurrentAssets))).toFixed(2);
-        this.balancesheet.TotalAssets = this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalCurrentAssets) + this.convertStrToFloat(this.balancesheet.PatentsAndIntangibleAssets) + this.convertStrToFloat(this.balancesheet.FixedAssets) + this.convertStrToFloat(this.balancesheet.OtherAssets))).toFixed(2);
+        this.balancesheet.TotalCurrentAssets = 
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.Cash) + 
+        this.convertStrToFloat(this.balancesheet.AccountReceivables) + 
+        this.convertStrToFloat(this.balancesheet.SREDReceivable) + 
+        this.convertStrToFloat(this.balancesheet.OtherCurrentAssets))).toFixed(2);
+        
+        this.balancesheet.TotalAssets = 
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalCurrentAssets) + 
+        this.convertStrToFloat(this.balancesheet.PatentsAndIntangibleAssets) + 
+        this.convertStrToFloat(this.balancesheet.FixedAssets) + 
+        this.convertStrToFloat(this.balancesheet.OtherAssets))).toFixed(2);
     }
 
     getTotalAssets() {
-        this.balancesheet.TotalAssets = this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalCurrentAssets) + this.convertStrToFloat(this.balancesheet.PatentsAndIntangibleAssets) + this.convertStrToFloat(this.balancesheet.FixedAssets) + this.convertStrToFloat(this.balancesheet.OtherAssets))).toFixed(2);
+        this.balancesheet.TotalAssets = 
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalCurrentAssets) + 
+        this.convertStrToFloat(this.balancesheet.PatentsAndIntangibleAssets) + 
+        this.convertStrToFloat(this.balancesheet.FixedAssets) + 
+        this.convertStrToFloat(this.balancesheet.OtherAssets))).toFixed(2);
     }
 
     getTotalCurrentLiabilities() {
-        this.balancesheet.TotalCurrentLiabilities = this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.AccountsPayableAndAccruedLiabilities) + this.convertStrToFloat(this.balancesheet.BankDebt) + this.convertStrToFloat(this.balancesheet.OtherCurrentLiabilities) + this.convertStrToFloat(this.balancesheet.DeferredRevenue))).toFixed(2);
+        this.balancesheet.TotalCurrentLiabilities = 
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.AccountsPayableAndAccruedLiabilities) + 
+        this.convertStrToFloat(this.balancesheet.BankDebt) + 
+        this.convertStrToFloat(this.balancesheet.OtherCurrentLiabilities) + 
+        this.convertStrToFloat(this.balancesheet.DeferredRevenue))).toFixed(2);
+
+        this.balancesheet.TotalLiabilities =
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalCurrentLiabilities) +
+    	this.convertStrToFloat(this.balancesheet.EspressoDebtOutstanding) +
+        this.convertStrToFloat(this.balancesheet.SeniorSecuredDebt) +
+        this.convertStrToFloat(this.balancesheet.SubordinatedDebt) +
+        this.convertStrToFloat(this.balancesheet.ShareholderLoans) +
+        this.convertStrToFloat(this.balancesheet.OtherLiabilities))).toFixed(2);
+
+        this.balancesheet.TotalLiabilityAndEquity =
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalEquity) +
+        this.convertStrToFloat(this.balancesheet.TotalLiabilities))).toFixed(2);
     }
 
     getTotalLiabilities() {
-        this.balancesheet.TotalLiabilities = this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.EspressoDebtOutstanding) + this.convertStrToFloat(this.balancesheet.SeniorSecuredDebt) + this.convertStrToFloat(this.balancesheet.SubordinatedDebt) + this.convertStrToFloat(this.balancesheet.ShareholderLoans) + this.convertStrToFloat(this.balancesheet.OtherLiabilities))).toFixed(2);
-        this.balancesheet.TotalLiabilityAndEquity = this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalEquity) + this.convertStrToFloat(this.balancesheet.TotalLiabilities))).toFixed(2);
+        this.balancesheet.TotalLiabilities =        
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalCurrentLiabilities) +
+        this.convertStrToFloat(this.balancesheet.EspressoDebtOutstanding) + 
+        this.convertStrToFloat(this.balancesheet.SeniorSecuredDebt) + 
+        this.convertStrToFloat(this.balancesheet.SubordinatedDebt) + 
+        this.convertStrToFloat(this.balancesheet.ShareholderLoans) + 
+        this.convertStrToFloat(this.balancesheet.OtherLiabilities))).toFixed(2);
+        
+        this.balancesheet.TotalLiabilityAndEquity = 
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalEquity) + 
+        this.convertStrToFloat(this.balancesheet.TotalLiabilities))).toFixed(2);
     }
 
     getTotalEquity() {
-        this.balancesheet.TotalEquity = this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.ShareAndContributedCapital) + this.convertStrToFloat(this.balancesheet.MinorityEquityPosition) + this.convertStrToFloat(this.balancesheet.EquityPositionOfLTDebt) + this.convertStrToFloat(this.balancesheet.RetainedEarningsLoss) + this.convertStrToFloat(this.balancesheet.NetIncomeYTD))).toFixed(2);
-        this.balancesheet.TotalLiabilityAndEquity = this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalEquity) + this.convertStrToFloat(this.balancesheet.TotalLiabilities))).toFixed(2);
+        this.balancesheet.TotalEquity = 
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.ShareAndContributedCapital) + 
+        this.convertStrToFloat(this.balancesheet.MinorityEquityPosition) + 
+        this.convertStrToFloat(this.balancesheet.EquityPositionOfLTDebt) + 
+        this.convertStrToFloat(this.balancesheet.RetainedEarningsLoss) + 
+        this.convertStrToFloat(this.balancesheet.NetIncomeYTD))).toFixed(2);
+        
+        this.balancesheet.TotalLiabilityAndEquity = 
+        this.convertStrToFloat((this.convertStrToFloat(this.balancesheet.TotalEquity) + 
+        this.convertStrToFloat(this.balancesheet.TotalLiabilities))).toFixed(2);
     }
 
     getTotalRevenue() {
-        this.incomestatement.TotalRevenue = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.NonRecurringRevenues) + this.convertStrToFloat(this.incomestatement.RecurringRevenues))).toFixed(2);
-        this.incomestatement.GrossProfit = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.TotalRevenue) - this.convertStrToFloat(this.incomestatement.CostOfGoodsSold))).toFixed(2);
-        this.incomestatement.Ebitda = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.GrossProfit) - (this.convertStrToFloat(this.incomestatement.SalesAndMarketingExpenses) + this.convertStrToFloat(this.incomestatement.RDGrossMinusExcludingSRED) + this.convertStrToFloat(this.incomestatement.GA)))).toFixed(2);
-        this.incomestatement.NetIncome = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.Ebitda) + this.convertStrToFloat(this.incomestatement.InterestIncomeExpense) + this.convertStrToFloat(this.incomestatement.SREDAccrual) + this.convertStrToFloat(this.incomestatement.IRAPGrantsReceived) + this.convertStrToFloat(this.incomestatement.DepreciationAndAmortization) + this.convertStrToFloat(this.incomestatement.OtherIncomeExpenses))).toFixed(2);
+        this.incomestatement.TotalRevenue = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.NonRecurringRevenues) + 
+        this.convertStrToFloat(this.incomestatement.RecurringRevenues))).toFixed(2);
+        
+        this.incomestatement.GrossProfit = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.TotalRevenue) - 
+        this.convertStrToFloat(this.incomestatement.CostOfGoodsSold))).toFixed(2);
+        
+        this.incomestatement.Ebitda = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.GrossProfit) - 
+        (this.convertStrToFloat(this.incomestatement.SalesAndMarketingExpenses) + 
+        this.convertStrToFloat(this.incomestatement.RDGrossMinusExcludingSRED) + 
+        this.convertStrToFloat(this.incomestatement.GA)))).toFixed(2);
+        
+        this.incomestatement.NetIncome = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.Ebitda) +
+        this.convertStrToFloat(this.incomestatement.InterestIncomeExpense) + 
+        this.convertStrToFloat(this.incomestatement.SREDAccrual) + 
+        this.convertStrToFloat(this.incomestatement.IRAPGrantsReceived) + 
+        this.convertStrToFloat(this.incomestatement.DepreciationAndAmortization) + 
+        this.convertStrToFloat(this.incomestatement.OtherIncomeExpenses))).toFixed(2);
     }
 
     getGrossProfit() {
-        this.incomestatement.GrossProfit = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.TotalRevenue) - this.convertStrToFloat(this.incomestatement.CostOfGoodsSold))).toFixed(2);
-        this.incomestatement.Ebitda = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.GrossProfit) - (this.convertStrToFloat(this.incomestatement.SalesAndMarketingExpenses) + this.convertStrToFloat(this.incomestatement.RDGrossMinusExcludingSRED) + this.convertStrToFloat(this.incomestatement.GA)))).toFixed(2);
-        this.incomestatement.NetIncome = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.Ebitda) + this.convertStrToFloat(this.incomestatement.InterestIncomeExpense) + this.convertStrToFloat(this.incomestatement.SREDAccrual) + this.convertStrToFloat(this.incomestatement.IRAPGrantsReceived) + this.convertStrToFloat(this.incomestatement.DepreciationAndAmortization) + this.convertStrToFloat(this.incomestatement.OtherIncomeExpenses))).toFixed(2);
+        this.incomestatement.GrossProfit = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.TotalRevenue) - 
+        this.convertStrToFloat(this.incomestatement.CostOfGoodsSold))).toFixed(2);
+        
+        this.incomestatement.Ebitda = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.GrossProfit) - 
+        (this.convertStrToFloat(this.incomestatement.SalesAndMarketingExpenses) + 
+        this.convertStrToFloat(this.incomestatement.RDGrossMinusExcludingSRED) + 
+        this.convertStrToFloat(this.incomestatement.GA)))).toFixed(2);
+        
+        this.incomestatement.NetIncome = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.Ebitda) + 
+        this.convertStrToFloat(this.incomestatement.InterestIncomeExpense) + 
+        this.convertStrToFloat(this.incomestatement.SREDAccrual) + 
+        this.convertStrToFloat(this.incomestatement.IRAPGrantsReceived) + 
+        this.convertStrToFloat(this.incomestatement.DepreciationAndAmortization) + 
+        this.convertStrToFloat(this.incomestatement.OtherIncomeExpenses))).toFixed(2);
     }
 
     getEbitda() {
-        this.incomestatement.Ebitda = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.GrossProfit) - (this.convertStrToFloat(this.incomestatement.SalesAndMarketingExpenses) + this.convertStrToFloat(this.incomestatement.RDGrossMinusExcludingSRED) + this.convertStrToFloat(this.incomestatement.GA)))).toFixed(2);
-        this.incomestatement.NetIncome = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.Ebitda) + this.convertStrToFloat(this.incomestatement.InterestIncomeExpense) + this.convertStrToFloat(this.incomestatement.SREDAccrual) + this.convertStrToFloat(this.incomestatement.IRAPGrantsReceived) + this.convertStrToFloat(this.incomestatement.DepreciationAndAmortization) + this.convertStrToFloat(this.incomestatement.OtherIncomeExpenses))).toFixed(2);
+        this.incomestatement.Ebitda = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.GrossProfit) - 
+        (this.convertStrToFloat(this.incomestatement.SalesAndMarketingExpenses) + 
+        this.convertStrToFloat(this.incomestatement.RDGrossMinusExcludingSRED) + 
+        this.convertStrToFloat(this.incomestatement.GA)))).toFixed(2);
+        
+        this.incomestatement.NetIncome = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.Ebitda) + 
+        this.convertStrToFloat(this.incomestatement.InterestIncomeExpense) + 
+        this.convertStrToFloat(this.incomestatement.SREDAccrual) + 
+        this.convertStrToFloat(this.incomestatement.IRAPGrantsReceived) + 
+        this.convertStrToFloat(this.incomestatement.DepreciationAndAmortization) + 
+        this.convertStrToFloat(this.incomestatement.OtherIncomeExpenses))).toFixed(2);
     }
 
     getNetIncome() {
-        this.incomestatement.NetIncome = this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.Ebitda) + this.convertStrToFloat(this.incomestatement.InterestIncomeExpense) + this.convertStrToFloat(this.incomestatement.SREDAccrual) + this.convertStrToFloat(this.incomestatement.IRAPGrantsReceived) + this.convertStrToFloat(this.incomestatement.DepreciationAndAmortization) + this.convertStrToFloat(this.incomestatement.OtherIncomeExpenses))).toFixed(2);
+        this.incomestatement.NetIncome = 
+        this.convertStrToFloat((this.convertStrToFloat(this.incomestatement.Ebitda) + 
+        this.convertStrToFloat(this.incomestatement.InterestIncomeExpense) + 
+        this.convertStrToFloat(this.incomestatement.SREDAccrual) + 
+        this.convertStrToFloat(this.incomestatement.IRAPGrantsReceived) + 
+        this.convertStrToFloat(this.incomestatement.DepreciationAndAmortization) + 
+        this.convertStrToFloat(this.incomestatement.OtherIncomeExpenses))).toFixed(2);
     }
 
     /**
@@ -408,14 +511,12 @@ export class FormEntryComponent implements OnInit, OnDestroy {
             this.router.navigate([NavigateToScreen.sync]);
         }
   }
-  setDefaultVal(value){
-      value = isNaN(value) ? 0.00 : value;
-      return value;
-  }
+
   ngOnDestroy() {
    this.session.unsubscribe();
   }
   formChanged() {
       this.form_changed = true;
   }
+
 }

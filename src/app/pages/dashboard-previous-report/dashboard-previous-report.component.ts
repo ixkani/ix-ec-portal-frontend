@@ -6,9 +6,10 @@ import {ReportingService} from './../../services';
 import {CommonService} from "../../services";
 import {environment} from './../../../environments/environment';
 import * as moment from 'moment';
-import {AppConstants, ErrorCodes, LoadingMessage, NavigateToScreen} from '../../app.constants';
+import {AppConstants, ErrorCodes, ErrorMessage, LoadingMessage, NavigateToScreen} from '../../app.constants';
 import {ScrollEvent} from "ngx-scroll-event";
 import {AppComponent} from '../../app.component';
+import {isNullOrUndefined} from "util";
 
 @Component({
     selector: 'app-dashboard-previous-report',
@@ -95,7 +96,7 @@ export class DashboardPreviousReportComponent implements OnInit {
         this.company_service.getMonthlyReport()
             .then(response => {
                 this.appComponent.session_warning();
-                if (response) {
+                if (response.length > 0) {
                     var field = 'period_ending';
                     response.sort((record1: any, record2: any) => {
                         let date1 = Number(new Date(record1[field]));
@@ -142,6 +143,14 @@ export class DashboardPreviousReportComponent implements OnInit {
 
         var type = this.monthly_reporting_sync_method;*/
 
+        let sync_type = this.common.getSyncMethod();
+        if(isNullOrUndefined(sync_type)){
+            this.showLoading = false;
+            this.appComponent.addToast('error', 'Error',ErrorMessage.NO_SYNC_SETUP);
+            return;
+        }
+
+
         // Create the monthly report for the current period. This functio will not allow dupliacte montly report entries to be created.
         this.reporting_service.postMonthlyReportForCurrentPeriod(localStorage.getItem('company'), localStorage.getItem('token'))
             .then(
@@ -158,12 +167,17 @@ export class DashboardPreviousReportComponent implements OnInit {
                         localStorage.setItem('company_meta', JSON.stringify(meta.result));
                         var type = meta.result.monthly_reporting_sync_method;
 
+                        if(isNullOrUndefined(type)){
+                            this.showLoading = false;
+                            this.appComponent.addToast('error', 'Error',ErrorMessage.NO_SYNC_SETUP);
+                            return;
+                        }
+
                         // #brad: don't move forward until the monthly report has been created
                         if (this.common.checkAccountSyncType(type)) {
                             //Redirect to the quick books link
                           let account_type = this.companyAccountingType.charAt(0).toUpperCase() + this.companyAccountingType.slice(1);
-                          this.loadingMessage["message"] = "Redirecting to "+ account_type + " for Authentication.";
-                          window.location.href = environment.api.url + '/qbo/connectToQuickbooks/?company=' + localStorage.getItem('company');
+                          this.router.navigate([NavigateToScreen.coa_match, this.companyAccountingType.toLowerCase()]);
                         } else if (type == AppConstants.QBD_ACCOUNT_TYPE) {
                             //make a call to quick book desktop app
                             this.showLoading = false;
@@ -210,6 +224,11 @@ export class DashboardPreviousReportComponent implements OnInit {
                 // refresh localStorage version of meta and store from the result of response
                 localStorage.setItem('company_meta', JSON.stringify(meta.result));
                 var type = meta.result.monthly_reporting_sync_method;
+                if(isNullOrUndefined(type)){
+                    this.showLoading = false;
+                    this.appComponent.addToast('error', 'Error',ErrorMessage.NO_SYNC_SETUP);
+                    return;
+                }
                 var path = [meta.result.last_page];
                 this.common.debuglog('#### redirecting to path '+path);
                 // #brad: don't move forward until the monthly report has been created

@@ -9,7 +9,7 @@ import { Component, OnInit, Input} from '@angular/core';
     ]
 })
 
-export class LoadingMessageComponent implements OnInit {
+export class LoadingMessageDirective implements OnInit {
     @Input()
     showLoading: any;
     @Input()
