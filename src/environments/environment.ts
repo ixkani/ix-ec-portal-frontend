@@ -5,7 +5,7 @@
 
 export const environment = {
   production: false,
-  development: true,
+  development: false,
   api: {
     url: 'https://ec-portal-backend.herokuapp.com/lend/v1',
     username: 'extreme',

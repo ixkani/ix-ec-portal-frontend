@@ -105,7 +105,8 @@ export class CommonService {
         };
     }
     sessionCheck(code) {
-        if (code === ErrorCodes.SESSION_EXISTS) {
+        // bradj - temporarily disabling this because it is causing problems for QBD app's redirect. Once we figure out what's wrong, then we can re-enable.
+        /*if (code === ErrorCodes.SESSION_EXISTS) {
             this.router.navigate(['/session_inactive']);
         }else {
             if (code === ErrorCodes.SESSION_EXPIRED) {
@@ -113,7 +114,7 @@ export class CommonService {
             } else {
                 return true;
             }
-        }
+        }*/
     }
 
     checkAccountType(type){
